@@ -1,0 +1,4 @@
+freeglut-devel
+plib-devel
+freealut-devel
+libXmu-devel
