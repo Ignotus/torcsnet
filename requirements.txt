@@ -2,3 +2,4 @@ freeglut-devel
 plib-devel
 freealut-devel
 libXmu-devel
+libpng12-devel
