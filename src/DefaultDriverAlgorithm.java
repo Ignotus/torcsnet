@@ -15,7 +15,6 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
     public void run(boolean continue_from_checkpoint) {    }
 
     public static void main(String[] args) {
-
         //Set path to torcs.properties
         TorcsConfiguration.getInstance().initialize(new File("/home/ignotus/Development/torcsnet/torcs.properties"));
 		/*
