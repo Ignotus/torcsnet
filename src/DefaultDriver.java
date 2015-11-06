@@ -28,7 +28,7 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public String getDriverName() {
-        return "simple example";
+        return "Cocaine";
     }
 
     public void controlQualification(Action action, SensorModel sensors) {

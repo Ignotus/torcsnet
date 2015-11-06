@@ -2,7 +2,6 @@
   <library name="CIContest-driver">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/CIContest-driver.jar!/" />
-      <root url="jar://$PROJECT_DIR$/TORCSLauncher.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
