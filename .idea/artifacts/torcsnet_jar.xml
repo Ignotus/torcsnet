@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/torcsnet_jar</output-path>
     <root id="archive" name="torcsnet.jar">
       <element id="module-output" name="torcsnet" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/CIContest-driver.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/CIContest-driver.jar" path-in-jar="/" />
       <element id="directory" name="memory">
         <element id="file-copy" path="$PROJECT_DIR$/out/production/memory/DefaultDriver.mem" />
       </element>
