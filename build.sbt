@@ -13,3 +13,4 @@ autoScalaLibrary := false
 packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
 
+libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
