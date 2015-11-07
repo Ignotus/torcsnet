@@ -1,4 +1,7 @@
 # torcsnet
+
+[![Build Status](https://magnum.travis-ci.com/Ignotus/torcsnet.svg?token=wwJeqCDpgp3zQEw8i5Wy&branch=master)](https://magnum.travis-ci.com/Ignotus/torcsnet)
+
 Torcs Controller's AI
 
 ### Requirements
