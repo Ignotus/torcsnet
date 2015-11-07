@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Driver: DefaultDriver
-Main-Class: DefaultDriverAlgorithm
-
