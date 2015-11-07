@@ -3,3 +3,7 @@ scala:
   - 2.11.2
 script:
   - sbt assembly
+addons:
+  artifacts:
+    paths:
+      - /home/travis/build/Ignotus/torcsnet/target/
