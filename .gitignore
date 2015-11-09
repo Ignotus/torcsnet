@@ -21,4 +21,4 @@ out/
 target/*
 project/project/
 project/target/
-src/main/java/Configuration.java
+Configuration.java

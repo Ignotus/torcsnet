@@ -44,6 +44,7 @@ public class DefaultDriver extends AbstractDriver {
         action.steering =  Math.random() * (1 - -1)  -1;
         action.accelerate = 1;
         action.brake = 0;
+        //System.out.println(sensors.getMessage());
         //super.ControlRace(action, sensors);
     }
 
