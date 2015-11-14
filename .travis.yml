@@ -2,4 +2,6 @@ language: scala
 scala:
   - 2.11.2
 script:
+  - wget https://gist.githubusercontent.com/Ignotus/b27d04157f1b955f8907/raw/f5867d1076b7a82958ff96c9f947b958e36e5a6b/Configuration.java
+  - mv Configuration.java src/main/java/
   - sbt assembly
