@@ -1,4 +1,7 @@
 language: scala
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y wget
 scala:
   - 2.11.2
 script:
