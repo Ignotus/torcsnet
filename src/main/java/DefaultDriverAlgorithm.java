@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+
 import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
 import cicontest.algorithm.abstracts.DriversUtils;
@@ -19,24 +21,35 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
 
     public void run(boolean continue_from_checkpoint) {
         if(!continue_from_checkpoint){
-            //init NN
-            DefaultDriverGenome genome = new  DefaultDriverGenome();
+
+            // create data recorder
+
+            DataRecorder dataRecorder;
+            try {
+                dataRecorder = new DataRecorder(Configuration.OUTPUT_FILE);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            // init NN
+            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder);
             drivers[0] = genome;
 
-            //Start a race
+            // start a race
             DefaultRace race = new DefaultRace();
             race.setTrack( AbstractRace.DefaultTracks.getTrack(0));
             race.laps = 1;
 
-            //for speedup set withGUI to false
+            // for speedup set withGUI to false
             results = race.runRace(drivers, true);
 
-            // Save genome/nn
+            // save genome/nn
             DriversUtils.storeGenome(drivers[0]);
         }
             // create a checkpoint this allows you to continue this run later
             DriversUtils.createCheckpoint(this);
-            //DriversUtils.clearCheckpoint();
+            // driversUtils.clearCheckpoint();
     }
 
     public static void main(String[] args) {

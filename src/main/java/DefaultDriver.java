@@ -6,11 +6,13 @@ import cicontest.torcs.genome.IGenome;
 public class DefaultDriver extends AbstractDriver {
 
     private NeuralNetwork MyNN;
+    private DataRecorder mDataRecorder;
 
     public void loadGenome(IGenome genome) {
         if (genome instanceof DefaultDriverGenome) {
-            DefaultDriverGenome MyGenome = (DefaultDriverGenome) genome;
-            MyNN = MyGenome.getMyNN();
+            DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
+            MyNN = myGenome.getMyNN();
+            mDataRecorder = myGenome.getDataRecorder();
         } else {
             System.err.println("Invalid Genome assigned");
         }
@@ -40,10 +42,15 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public void controlRace(Action action, SensorModel sensors) {
-        action.clutch = 1;
-        action.steering =  Math.random() * (1 - -1)  -1;
-        action.accelerate = 1;
-        action.brake = 0;
+        super.controlWarmUp(action, sensors);
+        if (mDataRecorder != null) {
+            mDataRecorder.record(action, sensors);
+        }
+
+//        action.clutch = 1;
+//        action.steering =  Math.random() * (1 - -1)  -1;
+//        action.accelerate = 1;
+//        action.brake = 0;
         //System.out.println(sensors.getMessage());
         //super.ControlRace(action, sensors);
     }
