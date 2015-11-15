@@ -3,9 +3,9 @@ import java.util.Scanner
 import java.io.File
 import org.apache.commons.math3.linear.{Array2DRowRealMatrix, ArrayRealVector}
 
-class LogisticRegressionTest {
+class ReservoirRegressionTest {
   @Test
-  def testTraining {
+  def testTrainingAndPredict {
     val classLoader = getClass().getClassLoader()
     val scanner = new Scanner(new File(classLoader.getResource("test1.csv").getFile()))
     scanner.nextLine()
@@ -23,9 +23,10 @@ class LogisticRegressionTest {
       tSteering.setEntry(row, values(26))
     }
 
-    val nn = new LogisticRegression(X.getColumnDimension)
+    val nn = new ReservoirRegression(X.getColumnDimension)
 
     nn.train(X, tSteering, tAccelerate, 1)
+
+    val (steering, accelerate) = nn.predict(new ArrayRealVector(X.getRow(0)))
   }
 }
-
