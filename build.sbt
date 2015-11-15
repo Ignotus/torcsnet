@@ -14,3 +14,4 @@ packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
 
 libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
+libraryDependencies += "com.opencsv" % "opencsv" % "3.6"

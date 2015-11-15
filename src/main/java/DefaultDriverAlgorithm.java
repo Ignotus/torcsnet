@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
@@ -23,11 +24,10 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
         if(!continue_from_checkpoint){
 
             // create data recorder
-
             DataRecorder dataRecorder;
             try {
                 dataRecorder = new DataRecorder(Configuration.OUTPUT_FILE);
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
