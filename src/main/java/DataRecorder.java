@@ -1,10 +1,10 @@
 import cicontest.torcs.client.Action;
 import cicontest.torcs.client.SensorModel;
-import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class DataRecorder {
 
@@ -39,45 +39,44 @@ public class DataRecorder {
     public static final int ACTION_STEERING = sNumColumns++;
     public static final int ACTION_GEAR = sNumColumns++;
 
+    public static final String SEPARATOR = ", ";
+    public static final String LINE_SEPARATOR = "\n";
+
     private static final int NUM_TRACK_EDGE_SENSORS = 19;
 
-    private CSVWriter mDataFileWriter;
+    private PrintWriter mDataFileWriter;
 
     public DataRecorder(String filename) throws IOException {
-        System.out.println(filename);
         File dataFile = new File(filename);
-        mDataFileWriter = new CSVWriter(new FileWriter(dataFile));
+        mDataFileWriter = new PrintWriter(new FileWriter(dataFile));
     }
 
     public void record(Action action, SensorModel sensors) {
-        String[] columns = new String[sNumColumns];
+        StringBuilder builder = new StringBuilder();
 
         /* Sensors */
-        columns[SENSOR_SPEED] = String.valueOf(sensors.getSpeed());
-        columns[SENSORS_ANGLE_TO_TRACK_AXIS] = String.valueOf(sensors.getAngleToTrackAxis());
-        columns[SENSOR_TRACK_POSITION] = String.valueOf(sensors.getTrackPosition());
-        columns[SENSOR_RPM] = String.valueOf(sensors.getRPM());
+        builder.append(sensors.getSpeed()).append(SEPARATOR);
+        builder.append(sensors.getAngleToTrackAxis()).append(SEPARATOR);
+        builder.append(sensors.getTrackPosition()).append(SEPARATOR);
+        builder.append(sensors.getRPM()).append(SEPARATOR);
 
         /* Track edge sensors */
         for (int i = 0; i < NUM_TRACK_EDGE_SENSORS; i++) {
-            columns[SENSOR_TRACK_EDGE_1 + i] = String.valueOf(sensors.getTrackEdgeSensors()[i]);
+            builder.append(sensors.getTrackEdgeSensors()[i]).append(SEPARATOR);
         }
 
         /* Actions */
-        columns[ACTION_ACCELERATION] = String.valueOf(action.accelerate);
-        columns[ACTION_BRAKING] = String.valueOf(action.brake);
-        columns[ACTION_STEERING] = String.valueOf(action.steering);
-        columns[ACTION_GEAR] = String.valueOf(action.gear);
+        builder.append(action.accelerate).append(SEPARATOR);
+        builder.append(action.brake).append(SEPARATOR);
+        builder.append(action.steering).append(SEPARATOR);
+        builder.append(action.gear);
 
-        mDataFileWriter.writeNext(columns);
+        builder.append(LINE_SEPARATOR);
+        mDataFileWriter.write(builder.toString());
     }
 
-//    public void close() throws IOException {
-////        mDataFileWriter.close();
-//    }
-//
-//
-
-
+    public void close() throws IOException {
+        mDataFileWriter.close();
+    }
 
 }
