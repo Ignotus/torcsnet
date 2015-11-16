@@ -11,10 +11,22 @@ class ReservoirRegression(steeringWeights: RealVector, steeringBias: Double,
 
   if (inputWeights == null) {
     inputWeights = new Array2DRowRealMatrix(numOfFeatures, reservoirSize)
+    for (i <- 0 until reservoirSize) {
+      for (j <- 0 until numOfFeatures) {
+        inputWeights.setEntry(j, i, randomGen.nextUniform(-1, 1))
+      }
+    }
   }
 
   if (reservoirWeights == null) {
     reservoirWeights = new Array2DRowRealMatrix(reservoirSize, reservoirSize)
+    for (i <- 0 until reservoirSize) {
+      for (j <- 0 until reservoirSize) {
+        // Generates connection with a probability of 0.25
+        val hasConnection = if (randomGen.nextInt(0, 4) < 1) 1 else 0
+        reservoirWeights.setEntry(i, j,  randomGen.nextUniform(-1, 1) * hasConnection)
+      }
+    }
 
     val dec = new EigenDecomposition(reservoirWeights)
     val imagEigenvalues = new ArrayRealVector(dec.getImagEigenvalues)
@@ -28,17 +40,6 @@ class ReservoirRegression(steeringWeights: RealVector, steeringBias: Double,
 
     val alpha = 0.9
     reservoirWeights = reservoirWeights.scalarMultiply(alpha / rho)
-  }
-
-  for (i <- 0 until reservoirSize) {
-    for (j <- 0 until numOfFeatures) {
-      inputWeights.setEntry(j, i, randomGen.nextUniform(-1, 1))
-    }
-    for (j <- 0 until reservoirSize) {
-      // Generates connection with a probability of 0.25
-      val hasConnection = if (randomGen.nextInt(0, 4) < 1) 1 else 0
-      reservoirWeights.setEntry(i, j,  randomGen.nextUniform(-1, 1) * hasConnection)
-    }
   }
 
   def this(numOfFeatures: Int, reservoirSize: Int = 20) {
