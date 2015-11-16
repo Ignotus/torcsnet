@@ -20,16 +20,12 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
         return DefaultDriver.class;
     }
 
-
     public void run(boolean continue_from_checkpoint) {
-        System.out.println("Record data: " + Configuration.RECORD_DATA);
-        System.out.println("Continue from checkpoint: " + continue_from_checkpoint);
         if(!continue_from_checkpoint){
 
             // create data recorder
             DataRecorder dataRecorder = null;
             if (Configuration.RECORD_DATA) {
-
                 try {
                     dataRecorder = new DataRecorder(Configuration.OUTPUT_FILE);
                 } catch (IOException e) {
@@ -47,9 +43,17 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             race.setTrack( AbstractRace.DefaultTracks.getTrack(0));
             race.laps = 1;
 
-
             // for speedup set withGUI to false
-            results = race.runRace(drivers, true);
+            results = race.runRace(drivers, false);
+
+            // close the data recorder
+            if (dataRecorder != null) {
+                try {
+                    dataRecorder.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
             // save genome/nn
             DriversUtils.storeGenome(drivers[0]);
@@ -88,6 +92,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
         } else {
             algorithm.run();
         }
+
     }
 
 }

@@ -46,7 +46,7 @@ public class DefaultDriver extends AbstractDriver {
 
         double desiredSpeed;
         double alpha = 0.5;
-        double beta = 1.0;
+        double beta = 2.0;
         double maxSpeed = 180.0;
         double t9 = sensors.getTrackEdgeSensors()[9];
         double minTrackEdge = Math.max(sensors.getTrackEdgeSensors()[1], sensors.getTrackEdgeSensors()[17]);
