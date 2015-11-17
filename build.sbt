@@ -8,6 +8,8 @@ version := "0.1"
 
 crossPaths := false
 
+scalacOptions += "-target:jvm-1.8"
+
 packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
 
