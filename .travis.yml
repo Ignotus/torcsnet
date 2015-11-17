@@ -6,7 +6,7 @@ addons:
 scala:
   - 2.11.2
 script:
-  - wget https://gist.githubusercontent.com/Ignotus/b27d04157f1b955f8907/raw/79a574d0171803421508109b338763947f5e976b/Configuration.java
+  - wget https://gist.githubusercontent.com/Ignotus/b27d04157f1b955f8907/raw/8b069a839d5d2e3e25c1a9b813fa537b7ee446ad/Configuration.java
   - mv Configuration.java src/main/java/
   - sbt test
   - sbt assembly
