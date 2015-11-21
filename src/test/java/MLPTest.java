@@ -29,7 +29,7 @@ public class MLPTest {
         MLPSetup setup = new MLPSetup(1, 10);
         MLP nn = new MLP(setup);
 
-        nn.train(X, y, 500, 0.1);
+        nn.train(X, y, 100, 0.1);
 
         /* Get predictions */
         double[] yPredicted = new double[y.getDimension()];
