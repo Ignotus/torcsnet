@@ -1,6 +1,7 @@
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.util.MathUtils;
 import org.junit.Test;
 import org.knowm.xchart.Chart;
@@ -25,8 +26,9 @@ public class RRTest {
             X.setRow(i, new double[]{x.getEntry(i)});
         }
 
-        ReservoirRegressionSetup setup = new ReservoirRegressionSetup(1, 20);
+        ReservoirRegressionSetup setup = new ReservoirRegressionSetup(1, 50);
         ReservoirRegression nn = new ReservoirRegression(setup);
+
         nn.train(X, y, 100, 1);
 
         /* Get predictions */
@@ -39,7 +41,7 @@ public class RRTest {
         double[] xplot = x.toArray();
         Chart chart = new ChartBuilder().width(800).height(600).theme(StyleManager.ChartTheme.Matlab).build();
         
-        chart.addSeries("pred sin(x)", xplot, yPredicted);
+        chart.addSeries("pred", xplot, yPredicted);
         Utils.saveChart(chart, "rr");
     }
 

@@ -8,10 +8,17 @@ class LogisticRegression(var w: RealVector, var b: Double) {
 
 
   // Bishop (4.91)
-  private def grad(x: RealVector, t: Double) = {
+  // Evaluated on the paper
+  protected def grad(x: RealVector, t: Double) = {
     val y = sigmoid(x)
     val db = (y - t)
-    (x.mapMultiply(db), db)
+    val dw = x.mapMultiply(db)
+    (dw, db)
+  }
+
+  protected def updateWeights(dw: RealVector, db: Double, lr: Double) {
+    w = w.subtract(dw.mapMultiply(lr))
+    b -= db * lr
   }
 
   def train(data: RealMatrix, t: RealVector,
@@ -20,12 +27,11 @@ class LogisticRegression(var w: RealVector, var b: Double) {
       for (j <- 0 until data.getRowDimension) {
         val x = data.getRowVector(j)
         val (dw, db) = grad(x, t.getEntry(j))
-        w = w.subtract(dw)
-        b -= db
+        updateWeights(dw, db, lr)
       }
     }
   }
 
-  private def sigmoid(x: RealVector) = 1 / (1 + Math.exp(-w.dotProduct(x) - b))
+  protected def sigmoid(x: RealVector) = 1 / (1 + Math.exp(-w.dotProduct(x) - b))
   def predict(x: RealVector) = sigmoid(x)
 }

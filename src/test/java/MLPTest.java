@@ -1,29 +1,35 @@
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.util.MathUtils;
 import org.junit.Test;
 import org.knowm.xchart.Chart;
 import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
+import scala.Tuple2;
 
-public class LRTest {
+/**
+ * Created by sander on 17/11/15.
+ */
+public class MLPTest {
+
     @Test
     public void testTrainingAndPrediction() {
-        System.out.println("LR Test started");
+        System.out.println("MLP Test started");
 
         /* Generate sinusoidal input data */
-        RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 1000);
+        RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
         RealMatrix X = new Array2DRowRealMatrix(x.getDimension(), 1);
-        RealVector y = x.map(v -> 1 / (1 + Math.exp(-6.5 * v + 4)));
+        RealVector y = x.map(v -> Math.sin(v) / 2 + 0.5);
         for (int i = 0; i < x.getDimension(); ++i) {
             X.setRow(i, new double[]{x.getEntry(i)});
         }
 
-        LogisticRegressionSetup setup = new LogisticRegressionSetup(1);
-        /* Train */
-        LogisticRegression nn = new LogisticRegression(setup);
-        nn.train(X, y, 100, 1);
+        MLPSetup setup = new MLPSetup(1, 10);
+        MLP nn = new MLP(setup);
+
+        nn.train(X, y, 500, 0.1);
 
         /* Get predictions */
         double[] yPredicted = new double[y.getDimension()];
@@ -35,9 +41,9 @@ public class LRTest {
         double[] xplot = x.toArray();
         Chart chart = new ChartBuilder().width(800).height(600).theme(StyleManager.ChartTheme.Matlab).build();
         
+        chart.addSeries("sin", xplot, y.toArray());
         chart.addSeries("pred", xplot, yPredicted);
-        Utils.saveChart(chart, "lr");
+        Utils.saveChart(chart, "mlp");
     }
-
 
 }
