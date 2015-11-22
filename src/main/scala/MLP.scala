@@ -4,6 +4,11 @@ import org.apache.commons.math3.analysis.function._
 class MLP(w: RealVector, b: Double, var v: RealMatrix, var a: RealVector)
     extends LogisticRegression(w, b) {
 
+    def getW() = w
+    def getB() = b
+    def getV() = v
+    def getA() = a
+
     def this(setup: MLPSetup) {
         this(setup.getW, setup.getB, setup.getV, setup.getA)
     }
