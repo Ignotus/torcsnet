@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.{Array2DRowRealMatrix, ArrayRealVector}
 
 class MLPTrainingTest {
   // Uncomment it to run
-  @Test
+  // @Test
   def testTraining {
     val classLoader = getClass().getClassLoader()
     val scanner = new Scanner(new File("/home/ignotus/Development/data/track.csv"))
