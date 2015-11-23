@@ -1,12 +1,23 @@
 import cicontest.algorithm.abstracts.AbstractDriver;
 import cicontest.torcs.client.Action;
 import cicontest.torcs.client.SensorModel;
+import cicontest.torcs.controller.extras.ABS;
+import cicontest.torcs.controller.extras.AutomatedClutch;
+import cicontest.torcs.controller.extras.AutomatedGearbox;
+import cicontest.torcs.controller.extras.AutomatedRecovering;
 import cicontest.torcs.genome.IGenome;
 
 public class DefaultDriver extends AbstractDriver {
 
     private NeuralNetwork MyNN;
     private DataRecorder mDataRecorder;
+
+    public DefaultDriver() {
+        enableExtras(new AutomatedClutch());
+        enableExtras(new AutomatedGearbox());
+        enableExtras(new AutomatedRecovering());
+        enableExtras(new ABS());
+    }
 
     public void loadGenome(IGenome genome) {
         if (genome instanceof DefaultDriverGenome) {
@@ -65,7 +76,6 @@ public class DefaultDriver extends AbstractDriver {
         if (mDataRecorder != null) {
             mDataRecorder.record(action, sensors);
         }
-
     }
 
     public void defaultControl(Action action, SensorModel sensors){
