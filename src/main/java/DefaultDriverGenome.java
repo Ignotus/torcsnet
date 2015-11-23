@@ -4,17 +4,16 @@ import cicontest.torcs.genome.IGenome;
 public class DefaultDriverGenome implements IGenome {
 
     private static final long serialVersionUID = 6534186543165341653L;
-    private NeuralNetwork myNN = new NeuralNetwork(10,8,2);
-    private DataRecorder mDataRecorder = null;
+    private NNController mNNController;
+    private DataRecorder mDataRecorder;
 
-    public DefaultDriverGenome() {}
-
-    public DefaultDriverGenome(DataRecorder dataRecorder) {
+    public DefaultDriverGenome(DataRecorder dataRecorder, NNController nnController) {
         mDataRecorder = dataRecorder;
+        mNNController = nnController;
     }
 
-    public NeuralNetwork getMyNN() {
-        return myNN;
+    public NNController getNNController() {
+        return mNNController;
     }
 
     public DataRecorder getDataRecorder() {

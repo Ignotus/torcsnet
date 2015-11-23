@@ -2,10 +2,14 @@ import org.apache.commons.math3.linear._
 
 // http://cs229.stanford.edu/notes/cs229-notes1.pdf
 class LogisticRegression(var w: RealVector, var b: Double) {
+
   def this(setup: LogisticRegressionSetup) {
     this(setup.getWeights, setup.getBias)
   }
 
+  def setB(b: Double) {
+    this.b = b
+  }
 
   // Bishop (4.91)
   // Evaluated on the paper
@@ -33,5 +37,6 @@ class LogisticRegression(var w: RealVector, var b: Double) {
   }
 
   protected def sigmoid(x: RealVector) = 1 / (1 + Math.exp(-w.dotProduct(x) - b))
+
   def predict(x: RealVector) = sigmoid(x)
 }

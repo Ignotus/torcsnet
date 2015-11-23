@@ -13,6 +13,10 @@ class MLP(w: RealVector, b: Double, var v: RealMatrix, var a: RealVector)
         this(setup.getW, setup.getB, setup.getV, setup.getA)
     }
 
+    def this() {
+        this(null, 0, null, null)
+    }
+
     protected def mlpGrad(x: RealVector, t: Double) = {
         // h dimension [K * 1]
         val h = vecSigmoid(x)

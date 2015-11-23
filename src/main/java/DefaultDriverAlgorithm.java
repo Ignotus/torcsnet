@@ -1,12 +1,9 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
 import cicontest.algorithm.abstracts.DriversUtils;
 import cicontest.torcs.controller.Driver;
-import cicontest.torcs.controller.Human;
 import race.TorcsConfiguration;
 
 public class DefaultDriverAlgorithm extends AbstractAlgorithm {
@@ -34,8 +31,16 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
                 }
             }
 
-            // init NN
-            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder);
+            // init controller
+            NNController controller;
+            try {
+                controller = NNController.InitializeController(Configuration.WEIGHTS_FILE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+
+            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder, controller);
             drivers[0] = genome;
 
             // start a race
@@ -64,8 +69,10 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
     }
 
     public static void main(String[] args) {
+
         //Set path to torcs.properties
         TorcsConfiguration.getInstance().initialize(new File(Configuration.PROP_FILE));
+
 		/*
 		 *
 		 * Start without arguments to run the algorithm

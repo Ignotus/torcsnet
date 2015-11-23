@@ -5,13 +5,15 @@ import cicontest.torcs.genome.IGenome;
 
 public class DefaultDriver extends AbstractDriver {
 
-    private NeuralNetwork MyNN;
+    private static final String DRIVER_NAME = "Cocaine";
+
+    private NNController mNNController;
     private DataRecorder mDataRecorder;
 
     public void loadGenome(IGenome genome) {
         if (genome instanceof DefaultDriverGenome) {
             DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
-            MyNN = myGenome.getMyNN();
+            mNNController = myGenome.getNNController();
             mDataRecorder = myGenome.getDataRecorder();
         } else {
             System.err.println("Invalid Genome assigned");
@@ -19,31 +21,30 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public double getAcceleration(SensorModel sensors) {
-        double[] sensorArray = new double[4];
-        double output = MyNN.getOutput(sensors);
-    return 1;
+        return mNNController.predictAcceleration(sensors);
     }
 
-    public double getSteering(SensorModel sensors){
-        Double output = MyNN.getOutput(sensors);
-        return 0.5;
+    public double getSteering(SensorModel sensors) {
+        return mNNController.predictSteering(sensors);
     }
 
     public String getDriverName() {
-        return "Cocaine";
+        return DRIVER_NAME;
     }
 
     public void controlQualification(Action action, SensorModel sensors) {
         action.clutch = 1;
-        action.steering =  Math.random() * (1 - -1)  -1;
+        action.steering = Math.random() * (1 - -1) - 1;
         action.accelerate = 1;
         action.brake = 0;
-        //super.controlQualification(action, sensors);
     }
 
     public void controlRace(Action action, SensorModel sensors) {
-        super.controlWarmUp(action, sensors);
+        action.steering = getSteering(sensors);
+        action.accelerate = getAcceleration(sensors);
+    }
 
+    private void controlUsingOnlyHeuristics(Action action, SensorModel sensors) {
         double desiredSpeed;
         double alpha = 0.5;
         double beta = 2.0;
@@ -61,18 +62,18 @@ public class DefaultDriver extends AbstractDriver {
             desiredSpeed = beta * t9 * Math.abs(maxTrackEdge - t9) / Math.abs(minTrackEdge - t9);
         }
 
+        super.controlWarmUp(action, sensors);
         action.accelerate = 2.0 / (1.0 + Math.exp(sensors.getSpeed() - desiredSpeed)) - 1.0;
         if (mDataRecorder != null) {
             mDataRecorder.record(action, sensors);
         }
-
     }
 
-    public void defaultControl(Action action, SensorModel sensors){
+    public void defaultControl(Action action, SensorModel sensors) {
         action.clutch = 1;
-        action.steering =  Math.random() * (1 - -1)  -1;
+        action.steering = Math.random() * (1 - -1) - 1;
         action.accelerate = 1;
         action.brake = 0;
-        //super.defaultControl(action, sensors);
     }
+
 }
