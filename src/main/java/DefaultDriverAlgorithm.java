@@ -49,7 +49,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             race.laps = 1;
 
             // for speedup set withGUI to false
-            results = race.runRace(drivers, false);
+            results = race.runRace(drivers, true);
 
             // close the data recorder
             if (dataRecorder != null) {
@@ -73,15 +73,15 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
         //Set path to torcs.properties
         TorcsConfiguration.getInstance().initialize(new File(Configuration.PROP_FILE));
 
-		/*
-		 *
-		 * Start without arguments to run the algorithm
-		 * Start with -continue to continue a previous run
-		 * Start with -show to show the best found
-		 * Start with -show-race to show a race with 10 copies of the best found
-		 * Start with -human to race against the best found
-		 *
-		 */
+        /*
+         *
+         * Start without arguments to run the algorithm
+         * Start with -continue to continue a previous run
+         * Start with -show to show the best found
+         * Start with -show-race to show a race with 10 copies of the best found
+         * Start with -human to race against the best found
+         *
+         */
         DefaultDriverAlgorithm algorithm = new DefaultDriverAlgorithm();
         DriversUtils.registerMemory(algorithm.getDriverClass());
         if(args.length > 0 && args[0].equals("-show")){

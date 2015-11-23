@@ -2,6 +2,7 @@ import cicontest.algorithm.abstracts.AbstractDriver;
 import cicontest.torcs.client.Action;
 import cicontest.torcs.client.SensorModel;
 import cicontest.torcs.genome.IGenome;
+import org.apache.commons.math3.linear.RealVector;
 
 public class DefaultDriver extends AbstractDriver {
 
@@ -20,14 +21,6 @@ public class DefaultDriver extends AbstractDriver {
         }
     }
 
-    public double getAcceleration(SensorModel sensors) {
-        return mNNController.predictAcceleration(sensors);
-    }
-
-    public double getSteering(SensorModel sensors) {
-        return mNNController.predictSteering(sensors);
-    }
-
     public String getDriverName() {
         return DRIVER_NAME;
     }
@@ -40,8 +33,19 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public void controlRace(Action action, SensorModel sensors) {
-        action.steering = getSteering(sensors);
-        action.accelerate = getAcceleration(sensors);
+        RealVector vec = mNNController.sensorsToVector(sensors);
+        double acceleration = mNNController.predictAcceleration(vec);
+        double braking = mNNController.predictBraking(vec);
+
+        if (acceleration > braking) {
+            action.accelerate = acceleration;
+            action.brake = 0;
+        } else {
+            action.brake = braking;
+            action.accelerate = 0;
+        }
+
+        action.steering = mNNController.predictSteering(vec);
     }
 
     private void controlUsingOnlyHeuristics(Action action, SensorModel sensors) {
@@ -74,6 +78,18 @@ public class DefaultDriver extends AbstractDriver {
         action.steering = Math.random() * (1 - -1) - 1;
         action.accelerate = 1;
         action.brake = 0;
+    }
+
+    @Override
+    public double getSteering(SensorModel sensorModel) {
+        /* TODO: is this used? */
+        return 0;
+    }
+
+    @Override
+    public double getAcceleration(SensorModel sensorModel) {
+        /* TODO: is this used? */
+        return 0;
     }
 
 }
