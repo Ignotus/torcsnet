@@ -39,8 +39,8 @@ public class NNController {
         vector.setEntry(DataRecorder.SENSOR_RPM, normalizeValue(sensors.getRPM(), DataRecorder.SENSOR_RPM));
 
         double []trackEdgeSensors = sensors.getTrackEdgeSensors();
-        for (int i = DataRecorder.SENSOR_TRACK_EDGE_1; i <= DataRecorder.SENSOR_TRACK_EDGE_19; i++) {
-            vector.setEntry(i, normalizeValue(trackEdgeSensors[i], i));
+        for (int i = DataRecorder.SENSOR_TRACK_EDGE_1, j = 0; i <= DataRecorder.SENSOR_TRACK_EDGE_19; i++, j++) {
+            vector.setEntry(i, normalizeValue(trackEdgeSensors[j], i));
         }
 
         return vector;
