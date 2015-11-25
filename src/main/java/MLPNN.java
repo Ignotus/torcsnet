@@ -51,6 +51,37 @@ public class MLPNN {
         initializeWeights();
     }
 
+    private void initializeWeights() {
+        // Initialize W1 and W2 with values uniformly sampled from an interval
+        double max = 0.5;
+        double min = -0.5;
+
+        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        for (int i = 1; i <= mInputLayerSize; i++) {
+            for (int j = 0; j <=  mHiddenLayerSize; j++) {
+                mW1.setEntry(j, i, rand.nextDouble(min, max));
+            }
+        }
+
+        for (int i = 1; i <= mHiddenLayerSize; i++) {
+            for (int j = 0; j <= mOutputLayerSize; j++) {
+                mW2.setEntry(j, i, rand.nextDouble(min, max));
+            }
+        }
+    }
+
+    public int getInputLayerSize() {
+        return mInputLayerSize;
+    }
+
+    public int getHiddenLayerSize() {
+        return mHiddenLayerSize;
+    }
+
+    public int getOutputLayerSize() {
+        return mOutputLayerSize;
+    }
+
     public void setWeights(RealMatrix W1, RealMatrix W2) {
         this.mW1 = W1;
         this.mW2 = W2;
@@ -76,25 +107,6 @@ public class MLPNN {
     public void train(RealVector data, RealVector target, double learningRate) {
         pass(data);
         propagateError(target, learningRate);
-    }
-
-    private void initializeWeights() {
-        // Initialize W1 and W2 with values uniformly sampled from an interval
-        double max = 0.5;
-        double min = -0.5;
-
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
-        for (int i = 1; i <= mInputLayerSize; i++) {
-            for (int j = 0; j <=  mHiddenLayerSize; j++) {
-                mW1.setEntry(j, i, rand.nextDouble(min, max));
-            }
-        }
-
-        for (int i = 1; i <= mHiddenLayerSize; i++) {
-            for (int j = 0; j <= mOutputLayerSize; j++) {
-                mW2.setEntry(j, i, rand.nextDouble(min, max));
-            }
-        }
     }
 
     public void pass(RealVector input) {

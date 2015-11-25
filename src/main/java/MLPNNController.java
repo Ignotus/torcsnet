@@ -11,42 +11,47 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class MLPNNController {
-
-    private static final int HIDDEN_LAYER_SIZE = 10;
+public class MLPNNController implements NeuralNetworkController {
     private Normalization mNorm;
     private MLPNN mNN;
+    private RealVector mPrediction;
 
-    private MLPNNController() {
-        mNN = new MLPNN(MLPNNConfiguration.INPUTS.length, HIDDEN_LAYER_SIZE, MLPNNConfiguration.OUTPUTS.length);
-    }
-
-    public RealVector sensorsToVector(SensorModel sensors) {
-        RealVector vector = new ArrayRealVector(MLPNNConfiguration.INPUTS.length);
-        // TODO could be nicer
-        vector.setEntry(0, sensors.getSpeed());
-        vector.setEntry(1, sensors.getAngleToTrackAxis());
-
-        double []trackEdgeSensors = sensors.getTrackEdgeSensors();
-        for (int i = 0; i < trackEdgeSensors.length; i++) {
-            vector.setEntry(i + 2, trackEdgeSensors[i]);
-        }
-        mNorm.normalizeInputVector(vector);
-        return vector;
-    }
-
-    public RealVector predictOutputs(SensorModel sensorModel) {
-        RealVector vector = sensorsToVector(sensorModel);
-        // Returns vector containing [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
-        return mNN.predict(vector).getSubVector(1, vector.getDimension());
-    }
-
-    public static MLPNNController InitializeController(String weightsFile) throws IOException, ClassNotFoundException {
-        MLPNNController controller = new MLPNNController();
+    @Override
+    public void initialize(String weightsFile) throws IOException, ClassNotFoundException {
         MLPNNSetup setup = readSetup(weightsFile);
-        controller.mNorm = setup.norm;
-        controller.mNN.setWeights(setup.W1, setup.W2);
-        return controller;
+        int numInputs = setup.W1.getColumnDimension() - 1; // skip bias neuron
+        int numHidden = setup.W1.getRowDimension() - 1;
+        int numOutputs = setup.W2.getRowDimension() - 1;
+        mNN = new MLPNN(numInputs, numHidden, numOutputs);
+        mNN.setWeights(setup.W1, setup.W2);
+        mNorm = setup.norm;
+        mPrediction = new ArrayRealVector(numOutputs);
+    }
+
+    @Override
+    public void updatePredictions(SensorModel model) {
+        RealVector vector = sensorsToVector(model);
+        // Vector contains [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
+        RealVector prediction = mNN.predict(vector);
+        prediction = prediction.getSubVector(1, prediction.getDimension() - 1);
+        mNorm.denormalizeOutput(prediction);
+        System.out.println("De-normalized prediction: " + prediction);
+        mPrediction = prediction;
+    }
+
+    @Override
+    public double getAcceleration() {
+        return mPrediction.getEntry(0);
+    }
+
+    @Override
+    public double getSteering() {
+        return mPrediction.getEntry(1);
+    }
+
+    @Override
+    public double getBraking() {
+        return mPrediction.getEntry(2);
     }
 
     private static MLPNNSetup readSetup(String filename) throws IOException, ClassNotFoundException {
@@ -60,6 +65,24 @@ public class MLPNNController {
         MatrixUtils.deserializeRealVector(setup.norm, "targetMin", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "targetDiff", ois);
         return setup;
+    }
+
+    private RealVector sensorsToVector(SensorModel sensors) {
+        RealVector vector = new ArrayRealVector(mNN.getInputLayerSize());
+
+        vector.setEntry(0, sensors.getSpeed());
+        vector.setEntry(1, sensors.getAngleToTrackAxis());
+
+        System.out.println("Vector size: " + vector.getDimension());
+
+        double []trackEdgeSensors = sensors.getTrackEdgeSensors();
+        System.out.println("Track edge sensors: " + trackEdgeSensors.length);
+
+        for (int i = 0; i < trackEdgeSensors.length; i++) {
+            vector.setEntry(i + 2, trackEdgeSensors[i]);
+        }
+        mNorm.normalizeInputVector(vector);
+        return vector;
     }
 
 }

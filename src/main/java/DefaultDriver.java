@@ -6,11 +6,12 @@ import cicontest.torcs.controller.extras.AutomatedClutch;
 import cicontest.torcs.controller.extras.AutomatedGearbox;
 import cicontest.torcs.controller.extras.AutomatedRecovering;
 import cicontest.torcs.genome.IGenome;
+import org.apache.commons.math3.linear.RealVector;
 import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
 
-    private NeuralNetwork MyNN;
+    private NeuralNetworkController mController;
     private DataRecorder mDataRecorder;
 
     public DefaultDriver() {
@@ -23,22 +24,11 @@ public class DefaultDriver extends AbstractDriver {
     public void loadGenome(IGenome genome) {
         if (genome instanceof DefaultDriverGenome) {
             DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
-            MyNN = myGenome.getMyNN();
+            mController = myGenome.getController();
             mDataRecorder = myGenome.getDataRecorder();
         } else {
             System.err.println("Invalid Genome assigned");
         }
-    }
-
-    public double getAcceleration(SensorModel sensors) {
-        double[] sensorArray = new double[4];
-        double output = MyNN.getOutput(sensors);
-    return 1;
-    }
-
-    public double getSteering(SensorModel sensors){
-        Double output = MyNN.getOutput(sensors);
-        return 0.5;
     }
 
     public String getDriverName() {
@@ -53,7 +43,7 @@ public class DefaultDriver extends AbstractDriver {
         //super.controlQualification(action, sensors);
     }
 
-    public void controlRace(Action action, SensorModel sensors) {
+    public void controlRaceWithHeuristics(Action action, SensorModel sensors) {
         super.controlWarmUp(action, sensors);
 
         double desiredSpeed;
@@ -77,6 +67,33 @@ public class DefaultDriver extends AbstractDriver {
         if (mDataRecorder != null) {
             mDataRecorder.record(action, sensors);
         }
+    }
+
+    @Override
+    public double getSteering(SensorModel sensorModel) {
+        /* Only used in super.defaultControl(...)  */
+        return 0;
+    }
+
+    @Override
+    public double getAcceleration(SensorModel sensorModel) {
+        /* Only used in super.defaultControl(...)  */
+        return 0;
+    }
+
+    public void controlRace(Action action, SensorModel sensors) {
+        mController.updatePredictions(sensors);
+        double acceleration = mController.getAcceleration();
+        double braking = mController.getBraking();
+
+        if (acceleration > braking) {
+            action.accelerate = acceleration;
+            action.brake = 0;
+        } else {
+            action.brake = braking;
+            action.accelerate = 0;
+        }
+        action.steering = mController.getSteering();
     }
 
     public void defaultControl(Action action, SensorModel sensors){

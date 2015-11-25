@@ -34,7 +34,15 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             }
 
             // init NN
-            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder);
+            NeuralNetworkController controller = new MLPNNController();
+            try {
+                controller.initialize(Configuration.WEIGHTS_FILE);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            DefaultDriverGenome genome = new DefaultDriverGenome(dataRecorder, controller);
             drivers[0] = genome;
 
             // start a race
@@ -43,7 +51,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             race.laps = 1;
 
             // for speedup set withGUI to false
-            results = race.runRace(drivers, false);
+            results = race.runRace(drivers, true);
 
             // close the data recorder
             if (dataRecorder != null) {

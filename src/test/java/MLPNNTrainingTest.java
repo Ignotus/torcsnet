@@ -1,4 +1,4 @@
-import storage.ControllerData;
+import storage.DataRecorder;
 import storage.Normalization;
 import org.apache.commons.math3.linear.*;
 import org.junit.Test;
@@ -14,6 +14,38 @@ import java.util.Scanner;
 public class MLPNNTrainingTest {
     private static final int HIDDEN_LAYER_SIZE = 10;
     private static final int TRAIN_ITERATIONS = 100;
+
+    // The values that we take as input for predictions
+    public static final int[] INPUTS = new int[] {
+            DataRecorder.SENSOR_SPEED,
+            DataRecorder.SENSORS_ANGLE_TO_TRACK_AXIS,
+            DataRecorder.SENSOR_TRACK_EDGE_1,
+            DataRecorder.SENSOR_TRACK_EDGE_2,
+            DataRecorder.SENSOR_TRACK_EDGE_3,
+            DataRecorder.SENSOR_TRACK_EDGE_4,
+            DataRecorder.SENSOR_TRACK_EDGE_5,
+            DataRecorder.SENSOR_TRACK_EDGE_6,
+            DataRecorder.SENSOR_TRACK_EDGE_7,
+            DataRecorder.SENSOR_TRACK_EDGE_8,
+            DataRecorder.SENSOR_TRACK_EDGE_9,
+            DataRecorder.SENSOR_TRACK_EDGE_10,
+            DataRecorder.SENSOR_TRACK_EDGE_11,
+            DataRecorder.SENSOR_TRACK_EDGE_12,
+            DataRecorder.SENSOR_TRACK_EDGE_13,
+            DataRecorder.SENSOR_TRACK_EDGE_14,
+            DataRecorder.SENSOR_TRACK_EDGE_15,
+            DataRecorder.SENSOR_TRACK_EDGE_16,
+            DataRecorder.SENSOR_TRACK_EDGE_17,
+            DataRecorder.SENSOR_TRACK_EDGE_18,
+            DataRecorder.SENSOR_TRACK_EDGE_19
+    };
+
+    // The values that we want to predict
+    public static final int[] OUTPUTS = new int[] {
+            DataRecorder.ACTION_ACCELERATION,
+            DataRecorder.ACTION_STEERING,
+            DataRecorder.ACTION_BRAKING
+    };
 
     @Test
     public void trainAndStore() {
@@ -32,26 +64,32 @@ public class MLPNNTrainingTest {
                 + data.target.getRowDimension() + " target rows");
         System.out.println("Training...");
 
-        MLPNN nn = new MLPNN(MLPNNConfiguration.INPUTS.length, HIDDEN_LAYER_SIZE, MLPNNConfiguration.OUTPUTS.length);
-
+        MLPNN nn = new MLPNN(INPUTS.length, HIDDEN_LAYER_SIZE, OUTPUTS.length);
         nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.002);
-
         try {
             MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
-            writeSetup(MLPNNConfiguration.WEIGHTS_FILE, setup);
+            writeSetup(Configuration.WEIGHTS_FILE, setup);
             System.out.println("OK, weights written to file");
-
-            MLPNNSetup readSetup = readSetup(MLPNNConfiguration.WEIGHTS_FILE);
-            System.out.println("OK, weights read from file");
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
+    private class ControllerData {
+        public RealMatrix input;
+        public RealMatrix target;
+
+        public ControllerData(RealMatrix input, RealMatrix target) {
+            this.input = input;
+            this.target = target;
+        }
+    }
+
+    /* Reads all CSV files in the directory,
+     * returns input and target matrices for the neural network*/
     private ControllerData readData() {
-        File fileDir = new File(MLPNNConfiguration.FILE_FOLDER);
+        File fileDir = new File(Configuration.CSV_DIRECTORY);
         File[] files = fileDir.listFiles();
         if (files == null) {
             System.out.println("No data files found");
@@ -72,12 +110,12 @@ public class MLPNNTrainingTest {
                 /* Parse and train line-by-line */
                 while (scanner.hasNextLine()) {
                     String[] entries = scanner.nextLine().split(",");
-                    if (entries.length != MLPNNConfiguration.LINE_VALUES) {
-                        throw new Exception("Line should contain " + MLPNNConfiguration.LINE_VALUES + " values");
+                    if (entries.length != Configuration.LINE_VALUES) {
+                        throw new Exception("Line should contain " + Configuration.LINE_VALUES + " values");
                     }
 
-                    inputVectors.add(parseValues(entries, MLPNNConfiguration.INPUTS));
-                    targetVectors.add(parseValues(entries, MLPNNConfiguration.OUTPUTS));
+                    inputVectors.add(parseValues(entries, INPUTS));
+                    targetVectors.add(parseValues(entries, OUTPUTS));
                 }
 
             } catch (Exception e) {
@@ -92,8 +130,8 @@ public class MLPNNTrainingTest {
         }
 
         /* Create matrices */
-        RealMatrix inputMatrix = new Array2DRowRealMatrix(inputVectors.size(), MLPNNConfiguration.INPUTS.length);
-        RealMatrix targetMatrix = new Array2DRowRealMatrix(targetVectors.size(), MLPNNConfiguration.OUTPUTS.length);
+        RealMatrix inputMatrix = new Array2DRowRealMatrix(inputVectors.size(), INPUTS.length);
+        RealMatrix targetMatrix = new Array2DRowRealMatrix(targetVectors.size(), OUTPUTS.length);
         for (int i = 0; i < inputMatrix.getRowDimension(); i++) {
             inputMatrix.setRowVector(i, inputVectors.get(i));
         }
@@ -134,7 +172,7 @@ public class MLPNNTrainingTest {
         for (int i = 0; i < indices.length; i++) {
             double d = Double.parseDouble(line[indices[i]]);
             if (Double.isNaN(d)) {
-                // TODO temp fix?
+                // TODO File contains NaN, temp fix?
                 d = 0;
             }
             vector.setEntry(i, d);
