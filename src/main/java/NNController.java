@@ -28,6 +28,10 @@ public class NNController {
         return Math.min((value - mMinDiff.getEntry(index, MIN)) / mMinDiff.getEntry(index, DIFF), 1.0);
     }
 
+    private double denormalizeValue(double value, int index) {
+        return (mMinDiff.getEntry(index, DIFF) * value) + mMinDiff.getEntry(index, MIN);
+    }
+
     public RealVector sensorsToVector(SensorModel sensors) {
         int numSensors = DataRecorder.SENSOR_TRACK_EDGE_19 - DataRecorder.SENSOR_SPEED + 1;
         RealVector vector = new ArrayRealVector(numSensors);
@@ -45,17 +49,17 @@ public class NNController {
 
         return vector;
     }
-
+    
     public double predictSteering(RealVector sensorVec) {
-        return normalizeValue(mSteeringNN.predict(sensorVec), DataRecorder.ACTION_STEERING);
+        return denormalizeValue(mSteeringNN.predict(sensorVec), DataRecorder.ACTION_STEERING);
     }
 
     public double predictAcceleration(RealVector sensorVec) {
-        return normalizeValue(mAccelerationNN.predict(sensorVec), DataRecorder.ACTION_ACCELERATION);
+        return denormalizeValue(mAccelerationNN.predict(sensorVec), DataRecorder.ACTION_ACCELERATION);
     }
 
     public double predictBraking(RealVector sensorVec) {
-        return normalizeValue(mBrakingNN.predict(sensorVec), DataRecorder.ACTION_BRAKING);
+        return denormalizeValue(mBrakingNN.predict(sensorVec), DataRecorder.ACTION_BRAKING);
     }
 
     public static NNController InitializeController(String weightsFile) throws IOException, ClassNotFoundException {
