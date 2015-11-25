@@ -1,12 +1,11 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
 import cicontest.algorithm.abstracts.DriversUtils;
 import cicontest.torcs.controller.Driver;
-import cicontest.torcs.controller.Human;
+import storage.DataRecorder;
 import race.TorcsConfiguration;
 
 public class DefaultDriverAlgorithm extends AbstractAlgorithm {

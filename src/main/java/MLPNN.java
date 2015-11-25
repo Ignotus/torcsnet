@@ -24,9 +24,9 @@ public class MLPNN {
     private RealVector mOutputLayer;
 
     // Weights between input and hidden layer
-    private RealMatrix mW1;
+    public RealMatrix mW1;
     // Weights between hidden and output layer
-    private RealMatrix mW2;
+    public RealMatrix mW2;
 
     // Stored vectors, used in backpropagation, to minimize allocations
     private RealVector mOutputLayerGradients;
@@ -51,6 +51,33 @@ public class MLPNN {
         initializeWeights();
     }
 
+    public void setWeights(RealMatrix W1, RealMatrix W2) {
+        this.mW1 = W1;
+        this.mW2 = W2;
+    }
+
+    public RealVector predict(RealVector input) {
+        pass(input);
+        return mOutputLayer;
+    }
+
+    // data: matrix of dim  N X mInputLayerSize
+    // target: matrix of dim N X mOutputLayerSize
+    public void train(RealMatrix data, RealMatrix target, int numIterations, double learningRate) {
+        for (int i = 0; i < numIterations; i++) {
+            for (int row = 0; row < data.getRowDimension(); row++) {
+                train(data.getRowVector(row), target.getRowVector(row), learningRate);
+            }
+        }
+    }
+
+    // data: vector of length mInputLayerSize
+    // target: vector of length mOutputLayerSize
+    public void train(RealVector data, RealVector target, double learningRate) {
+        pass(data);
+        propagateError(target, learningRate);
+    }
+
     private void initializeWeights() {
         // Initialize W1 and W2 with values uniformly sampled from an interval
         double max = 0.5;
@@ -68,13 +95,6 @@ public class MLPNN {
                 mW2.setEntry(j, i, rand.nextDouble(min, max));
             }
         }
-    }
-
-    // W1 : weights between input and hidden layer
-    // W2 : weights between hidden and output layer
-    public void setWeights(RealMatrix W1, RealMatrix W2) {
-        this.mW1 = W1;
-        this.mW2 = W2;
     }
 
     public void pass(RealVector input) {
@@ -106,26 +126,10 @@ public class MLPNN {
         }
     }
 
-    public RealVector predict(RealVector input) {
-        pass(input);
-        return mOutputLayer;
-    }
-
-    // input: vector of length mInputLayerSize
-    // target: vector of length mOutputLayerSize
-    public void train(RealMatrix data, RealMatrix target, int numIterations, double learningRate) {
-        for (int i = 0; i < numIterations; i++) {
-            for (int row = 0; row < data.getRowDimension(); row++) {
-                pass(data.getRowVector(row));
-                propagateError(target.getRowVector(row), learningRate);
-            }
-        }
-    }
-
     // https://en.wikipedia.org/wiki/Multilayer_perceptron
     // Updates the weights through back propagation
     // Uses gradient descent
-    private void propagateError(RealVector target, double learningRate) {
+    private void propagateError(RealVector target, final double learningRate) {
         // Re-use vectors to minimize allocations
         mOutputLayerGradients.set(0);
         mHiddenLayerGradients.set(0);

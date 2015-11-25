@@ -6,6 +6,7 @@ import cicontest.torcs.controller.extras.AutomatedClutch;
 import cicontest.torcs.controller.extras.AutomatedGearbox;
 import cicontest.torcs.controller.extras.AutomatedRecovering;
 import cicontest.torcs.genome.IGenome;
+import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
 

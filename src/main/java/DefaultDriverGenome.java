@@ -1,5 +1,6 @@
 
 import cicontest.torcs.genome.IGenome;
+import storage.DataRecorder;
 
 public class DefaultDriverGenome implements IGenome {
 

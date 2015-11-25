@@ -1,3 +1,5 @@
+package storage;
+
 import cicontest.torcs.client.Action;
 import cicontest.torcs.client.SensorModel;
 
@@ -33,6 +35,7 @@ public class DataRecorder {
     public static final int SENSOR_TRACK_EDGE_17 = sNumColumns++;
     public static final int SENSOR_TRACK_EDGE_18 = sNumColumns++;
     public static final int SENSOR_TRACK_EDGE_19 = sNumColumns++;
+    public static final int NUM_SENSORS = SENSOR_TRACK_EDGE_19 - SENSOR_SPEED + 1;
 
     public static final int ACTION_ACCELERATION = sNumColumns++;
     public static final int ACTION_BRAKING = sNumColumns++;
