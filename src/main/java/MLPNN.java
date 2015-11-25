@@ -7,7 +7,6 @@ import org.apache.commons.math3.linear.RealVector;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by sander on 23/11/15.
  * Multilayer Perceptron implementation with one hidden layer
  */
 public class MLPNN {

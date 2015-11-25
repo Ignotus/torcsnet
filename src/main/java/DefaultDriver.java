@@ -6,12 +6,14 @@ import cicontest.torcs.controller.extras.AutomatedClutch;
 import cicontest.torcs.controller.extras.AutomatedGearbox;
 import cicontest.torcs.controller.extras.AutomatedRecovering;
 import cicontest.torcs.genome.IGenome;
-import org.apache.commons.math3.linear.RealVector;
 import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
 
     private NeuralNetworkController mController;
+
+    private static final String DRIVER_NAME = "Cocaine";
+
     private DataRecorder mDataRecorder;
 
     public DefaultDriver() {
@@ -32,20 +34,17 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public String getDriverName() {
-        return "Cocaine";
+        return DRIVER_NAME;
     }
 
     public void controlQualification(Action action, SensorModel sensors) {
         action.clutch = 1;
-        action.steering =  Math.random() * (1 - -1)  -1;
+        action.steering = Math.random() * (1 - -1) - 1;
         action.accelerate = 1;
         action.brake = 0;
-        //super.controlQualification(action, sensors);
     }
 
-    public void controlRaceWithHeuristics(Action action, SensorModel sensors) {
-        super.controlWarmUp(action, sensors);
-
+    private void controlUsingOnlyHeuristics(Action action, SensorModel sensors) {
         double desiredSpeed;
         double alpha = 0.5;
         double beta = 2.0;
@@ -63,6 +62,7 @@ public class DefaultDriver extends AbstractDriver {
             desiredSpeed = beta * t9 * Math.abs(maxTrackEdge - t9) / Math.abs(minTrackEdge - t9);
         }
 
+        super.controlWarmUp(action, sensors);
         action.accelerate = 2.0 / (1.0 + Math.exp(sensors.getSpeed() - desiredSpeed)) - 1.0;
         if (mDataRecorder != null) {
             mDataRecorder.record(action, sensors);
@@ -93,14 +93,15 @@ public class DefaultDriver extends AbstractDriver {
             action.brake = braking;
             action.accelerate = 0;
         }
+
         action.steering = mController.getSteering();
     }
 
-    public void defaultControl(Action action, SensorModel sensors){
+    public void defaultControl(Action action, SensorModel sensors) {
         action.clutch = 1;
-        action.steering =  Math.random() * (1 - -1)  -1;
+        action.steering = Math.random() * (1 - -1) - 1;
         action.accelerate = 1;
         action.brake = 0;
-        //super.defaultControl(action, sensors);
     }
+
 }

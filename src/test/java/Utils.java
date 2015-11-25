@@ -5,9 +5,6 @@ import org.knowm.xchart.Chart;
 
 import java.io.IOException;
 
-/**
- * Created by sander on 17/11/15.
- */
 public class Utils {
     public static void saveChart(Chart chart, String name) {
         try {

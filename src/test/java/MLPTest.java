@@ -9,9 +9,6 @@ import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
 import scala.Tuple2;
 
-/**
- * Created by sander on 17/11/15.
- */
 public class MLPTest {
 
     @Test

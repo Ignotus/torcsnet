@@ -7,9 +7,6 @@ import org.knowm.xchart.Chart;
 import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
 
-/**
- * Created by sander on 24/11/15.
- */
 public class MLPNNTest {
     @Test
     public void testTrainingAndPrediction() {

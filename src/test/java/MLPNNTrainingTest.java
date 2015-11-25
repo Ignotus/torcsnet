@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Created by sander on 24/11/15.
  * Training procedure for MLP with track data
  */
 public class MLPNNTrainingTest {

@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.IOException;
-
 import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
 import cicontest.algorithm.abstracts.DriversUtils;
@@ -34,15 +33,15 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             }
 
             // init NN
-            NeuralNetworkController controller = new MLPNNController();
+            NeuralNetworkController controller;
             try {
-                controller.initialize(Configuration.WEIGHTS_FILE);
+                controller = MLPNNController.initializeController(Configuration.WEIGHTS_FILE);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 return;
             }
 
-            DefaultDriverGenome genome = new DefaultDriverGenome(dataRecorder, controller);
+            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder, controller);
             drivers[0] = genome;
 
             // start a race
@@ -71,17 +70,19 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
     }
 
     public static void main(String[] args) {
+
         //Set path to torcs.properties
         TorcsConfiguration.getInstance().initialize(new File(Configuration.PROP_FILE));
-		/*
-		 *
-		 * Start without arguments to run the algorithm
-		 * Start with -continue to continue a previous run
-		 * Start with -show to show the best found
-		 * Start with -show-race to show a race with 10 copies of the best found
-		 * Start with -human to race against the best found
-		 *
-		 */
+
+        /*
+         *
+         * Start without arguments to run the algorithm
+         * Start with -continue to continue a previous run
+         * Start with -show to show the best found
+         * Start with -show-race to show a race with 10 copies of the best found
+         * Start with -human to race against the best found
+         *
+         */
         DefaultDriverAlgorithm algorithm = new DefaultDriverAlgorithm();
         DriversUtils.registerMemory(algorithm.getDriverClass());
         if(args.length > 0 && args[0].equals("-show")){

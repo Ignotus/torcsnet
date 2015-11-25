@@ -25,3 +25,4 @@ src/main/java/Configuration.java
 src/main/java/target
 data/
 *.png
+weights.dump
