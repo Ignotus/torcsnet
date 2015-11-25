@@ -70,7 +70,7 @@ public class Normalization {
     }
 
     public void denormalizeOutput(RealVector v) {
-        for (int i = 0; i < v.getDimension(); i++) {
+        for (int i = 0; i < targetMin.getDimension(); i++) {
             v.setEntry(i, v.getEntry(i) * targetDiff.getEntry(i) + targetMin.getEntry(i));
         }
     }
