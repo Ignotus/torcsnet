@@ -1,14 +1,8 @@
-language: scala
-addons:
-  apt:
-    packages:
-      - wget
+language: java
 jdk:
   - oraclejdk8
 scala:
   - 2.11.2
 script:
-  - wget https://gist.githubusercontent.com/Ignotus/b27d04157f1b955f8907/raw/8b069a839d5d2e3e25c1a9b813fa537b7ee446ad/Configuration.java
-  - mv Configuration.java src/main/java/
   - sbt test
   - sbt assembly

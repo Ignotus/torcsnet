@@ -102,6 +102,7 @@ public class MLPNNTrainingTest {
      * returns input and target matrices for the neural network*/
     private ControllerData readData() {
         File fileDir = new File(Configuration.CSV_DIRECTORY);
+        System.out.println(fileDir);
         File[] files = fileDir.listFiles();
         if (files == null) {
             System.out.println("No data files found");

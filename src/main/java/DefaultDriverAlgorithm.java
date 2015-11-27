@@ -35,7 +35,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             // init NN
             NeuralNetworkController controller;
             try {
-                controller = MLPNNController.initializeController(Configuration.WEIGHTS_FILE);
+                controller = MLPNNController.initializeController("memory/weights.dump");
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 return;
