@@ -37,13 +37,6 @@ public class DefaultDriver extends AbstractDriver {
         return DRIVER_NAME;
     }
 
-    public void controlQualification(Action action, SensorModel sensors) {
-        action.clutch = 1;
-        action.steering = Math.random() * (1 - -1) - 1;
-        action.accelerate = 1;
-        action.brake = 0;
-    }
-
     private void controlUsingOnlyHeuristics(Action action, SensorModel sensors) {
         double desiredSpeed;
         double alpha = 0.5;
@@ -81,7 +74,7 @@ public class DefaultDriver extends AbstractDriver {
         return 0;
     }
 
-    public void controlRace(Action action, SensorModel sensors) {
+    private void controlImpl(Action action, SensorModel sensors) {
         mController.updatePredictions(sensors);
         double acceleration = mController.getAcceleration();
         double braking = mController.getBraking();
@@ -97,11 +90,18 @@ public class DefaultDriver extends AbstractDriver {
         action.steering = mController.getSteering();
     }
 
-    public void defaultControl(Action action, SensorModel sensors) {
-        action.clutch = 1;
-        action.steering = Math.random() * (1 - -1) - 1;
-        action.accelerate = 1;
-        action.brake = 0;
+    @Override
+    public void controlRace(Action action, SensorModel sensors) {
+        controlImpl(action, sensors);
     }
 
+    @Override
+    public void controlWarmUp(Action action, SensorModel sensors) {
+        controlImpl(action, sensors);
+    }
+
+    @Override
+    public void controlQualification(Action action, SensorModel sensors) {
+        controlImpl(action, sensors);
+    }
 }
