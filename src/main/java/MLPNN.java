@@ -23,9 +23,9 @@ public class MLPNN {
     private RealVector mOutputLayer;
 
     // Weights between input and hidden layer
-    public RealMatrix mW1;
+    public RealMatrix mW1 = null;
     // Weights between hidden and output layer
-    public RealMatrix mW2;
+    public RealMatrix mW2 = null;
 
     // Stored vectors, used in backpropagation, to minimize allocations
     private RealVector mOutputLayerGradients;
@@ -41,43 +41,19 @@ public class MLPNN {
         this.mHiddenLayer = new ArrayRealVector(hiddenLayerSize + 1);
         this.mOutputLayer = new ArrayRealVector(outputLayerSize + 1);
 
-        this.mW1 = new Array2DRowRealMatrix(hiddenLayerSize + 1, inputLayerSize + 1);
-        this.mW2 = new Array2DRowRealMatrix(outputLayerSize + 1, hiddenLayerSize + 1);
-
         this.mOutputLayerGradients = new ArrayRealVector(outputLayerSize + 1);
         this.mHiddenLayerGradients = new ArrayRealVector(hiddenLayerSize + 1);
-
-        initializeWeights();
     }
 
-    private void initializeWeights() {
-        // Initialize W1 and W2 with values uniformly sampled from an interval
-        double max = 0.5;
-        double min = -0.5;
-
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
-        for (int i = 1; i <= mInputLayerSize; i++) {
-            for (int j = 0; j <=  mHiddenLayerSize; j++) {
-                mW1.setEntry(j, i, rand.nextDouble(min, max));
-            }
-        }
-
-        for (int i = 1; i <= mHiddenLayerSize; i++) {
-            for (int j = 0; j <= mOutputLayerSize; j++) {
-                mW2.setEntry(j, i, rand.nextDouble(min, max));
-            }
-        }
-    }
-
-    public int getInputLayerSize() {
+    public final int getInputLayerSize() {
         return mInputLayerSize;
     }
 
-    public int getHiddenLayerSize() {
+    public final int getHiddenLayerSize() {
         return mHiddenLayerSize;
     }
 
-    public int getOutputLayerSize() {
+    public final int getOutputLayerSize() {
         return mOutputLayerSize;
     }
 
@@ -94,6 +70,14 @@ public class MLPNN {
     // data: matrix of dim  N X mInputLayerSize
     // target: matrix of dim N X mOutputLayerSize
     public void train(RealMatrix data, RealMatrix target, int numIterations, double learningRate) {
+        if (this.mW1 == null) {
+            this.mW1 = Randomizer.newMatrix(mHiddenLayerSize + 1, mInputLayerSize + 1);
+        }
+
+        if (this.mW2 == null) {
+            this.mW2 = Randomizer.newMatrix(mOutputLayerSize + 1, mHiddenLayerSize + 1);
+        }
+
         for (int i = 0; i < numIterations; i++) {
             for (int row = 0; row < data.getRowDimension(); row++) {
                 train(data.getRowVector(row), target.getRowVector(row), learningRate);

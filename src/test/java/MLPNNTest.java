@@ -13,16 +13,13 @@ public class MLPNNTest {
         System.out.println("MLPNN Test started");
 
         /* Generate sinusoidal input data */
-            RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
+        RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
         RealMatrix X = new Array2DRowRealMatrix(x.getDimension(), 1);
         RealVector y = x.map(v -> Math.sin(v) / 2 + 0.5);
         RealMatrix Y = new Array2DRowRealMatrix(y.getDimension(), 1);
-        for (int i = 0; i < x.getDimension(); i++) {
-            X.setRow(i, new double[]{x.getEntry(i)});
-        }
-        for (int i = 0; i < y.getDimension(); i++) {
-            Y.setRow(i, new double[]{y.getEntry(i)});
-        }
+
+        X.setColumnVector(0, x);
+        Y.setColumnVector(0, y);
 
         MLPNN nn = new MLPNN(1, 30, 1);
 

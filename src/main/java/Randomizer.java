@@ -11,14 +11,14 @@ public class Randomizer {
         return Randomizer.generator.nextUniform(-1, 1);
     }
 
-    public RealVector newVector(int size) {
+    public static RealVector newVector(int size) {
         RealVector vec = new ArrayRealVector(size);
         for (int i = 0; i < size; ++i)
             vec.setEntry(i, Randomizer.generator.nextUniform(-1, 1));
         return vec;
     }
 
-    public RealMatrix newMatrix(int width, int height) {
+    public static RealMatrix newMatrix(int width, int height) {
         RealMatrix matrix = new Array2DRowRealMatrix(width, height);
         for (int row = 0; row < width; ++row)
             for (int col = 0; col < height; ++col)
