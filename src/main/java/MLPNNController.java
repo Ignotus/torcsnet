@@ -53,9 +53,8 @@ public class MLPNNController implements NeuralNetworkController {
     }
 
     private static MLPNNSetup readSetup(String filename) throws IOException, ClassNotFoundException {
-        ClassLoader classLoader = MLPNNController.class.getClassLoader();
         System.out.println("Loading weights");
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(filename);
 
         MLPNNSetup setup = new MLPNNSetup();
         FileInputStream fis = new FileInputStream(file);

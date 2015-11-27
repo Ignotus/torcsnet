@@ -35,7 +35,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             // init NN
             NeuralNetworkController controller;
             try {
-                controller = MLPNNController.initializeController("memory/weights.dump");
+                controller = MLPNNController.initializeController(Configuration.WEIGHTS_FILE);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
                 return;
@@ -43,6 +43,10 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
 
             DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder, controller);
             drivers[0] = genome;
+
+            // save genome/nn
+            System.out.println("Storing genome");
+            DriversUtils.storeGenome(drivers[0]);
 
             // start a race
             DefaultRace race = new DefaultRace();
@@ -60,9 +64,6 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
                     e.printStackTrace();
                 }
             }
-
-            // save genome/nn
-            DriversUtils.storeGenome(drivers[0]);
         }
             // create a checkpoint this allows you to continue this run later
             DriversUtils.createCheckpoint(this);

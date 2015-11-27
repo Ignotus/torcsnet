@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.knowm.xchart.Chart;
 import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class MLPNNTest {
     @Test
@@ -34,7 +35,7 @@ public class MLPNNTest {
         start = System.currentTimeMillis();
         for (int i = 0; i < x.getDimension(); i++) {
             RealVector pred = nn.predict(X.getRowVector(i));
-            yPredicted[i] = pred.getEntry(1);
+            yPredicted[i] = pred.getEntry(0);
             squaredError += Math.pow((yPredicted[i] - y.getEntry(i)), 2);
             System.out.println("yValue: " + y.getEntry(i));
             System.out.println("yPred: " + yPredicted[i]);

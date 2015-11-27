@@ -24,13 +24,13 @@ public class DefaultDriver extends AbstractDriver {
     }
 
     public void loadGenome(IGenome genome) {
-        if (genome instanceof DefaultDriverGenome) {
+        //if (genome instanceof DefaultDriverGenome) {
             DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
             mController = myGenome.getController();
             mDataRecorder = myGenome.getDataRecorder();
-        } else {
-            System.err.println("Invalid Genome assigned");
-        }
+        //} else {
+        //    System.err.println("Invalid Genome assigned");
+        //}
     }
 
     public String getDriverName() {
