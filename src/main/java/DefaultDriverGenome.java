@@ -10,9 +10,18 @@ public class DefaultDriverGenome implements IGenome {
     private DataRecorder mDataRecorder = null;
     private NeuralNetworkController mController = null;
     
-    public DefaultDriverGenome(DataRecorder dataRecorder, NeuralNetworkController controller) {
-        mDataRecorder = dataRecorder;
-        mController = controller;
+    public DefaultDriverGenome() {
+        // init NN
+        try {
+            mController = MLPNNController.initializeController(Configuration.WEIGHTS_FILE);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void setDataRecorder(DataRecorder recorder) {
+        mDataRecorder = recorder;
     }
 
     public NeuralNetworkController getController() {

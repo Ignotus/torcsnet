@@ -1,13 +1,10 @@
-import java.io.File;
+import java.io.*;
+
 import cicontest.torcs.client.SensorModel;
 import storage.Normalization;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealVector;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 
 public class MLPNNController implements NeuralNetworkController {
 
@@ -53,11 +50,10 @@ public class MLPNNController implements NeuralNetworkController {
     }
 
     private static MLPNNSetup readSetup(String filename) throws IOException, ClassNotFoundException {
-        System.out.println("Loading weights");
-        File file = new File(filename);
+        System.out.println("Loading weights " + MLPNNController.class.getResource(filename).getFile());
 
         MLPNNSetup setup = new MLPNNSetup();
-        FileInputStream fis = new FileInputStream(file);
+        InputStream fis = MLPNNController.class.getResourceAsStream(filename);
         ObjectInputStream ois = new ObjectInputStream(fis);
         MatrixUtils.deserializeRealMatrix(setup, "W1", ois);
         MatrixUtils.deserializeRealMatrix(setup, "W2", ois);

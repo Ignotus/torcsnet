@@ -20,8 +20,6 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
 
     public void run(boolean continue_from_checkpoint) {
         if(!continue_from_checkpoint){
-
-            // create data recorder
             DataRecorder dataRecorder = null;
             if (Configuration.RECORD_DATA) {
                 try {
@@ -32,16 +30,8 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
                 }
             }
 
-            // init NN
-            NeuralNetworkController controller;
-            try {
-                controller = MLPNNController.initializeController(Configuration.WEIGHTS_FILE);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            DefaultDriverGenome genome = new  DefaultDriverGenome(dataRecorder, controller);
+            DefaultDriverGenome genome = new  DefaultDriverGenome();
+            genome.setDataRecorder(dataRecorder);
             drivers[0] = genome;
 
             // save genome/nn
