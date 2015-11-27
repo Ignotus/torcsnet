@@ -11,7 +11,6 @@ import java.util.Scanner;
  * Training procedure for MLP with track data
  */
 public class MLPNNTrainingTest {
-    private static final int HIDDEN_LAYER_SIZE = 20;
     private static final int TRAIN_ITERATIONS = 1000;
 
     // The values that we take as input for predictions
@@ -63,29 +62,41 @@ public class MLPNNTrainingTest {
                 + data.target.getRowDimension() + " target rows");
         System.out.println("Training...");
 
-        MLPNN nn = new MLPNN(INPUTS.length, HIDDEN_LAYER_SIZE, OUTPUTS.length);
-        nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.02);
+        double minDistanceErrorAvg = Double.MAX_VALUE;
+        //for (int nhidden = 5; nhidden < 50; nhidden += 5) {
+        for (int nhidden = 20; nhidden < 21; nhidden += 5) {
+            System.out.println("Checking hidden layer size: " + nhidden);
+            MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
+            nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.02);
 
-        for (int i = 1000; i < 1020; i++) {
-            System.out.println("Target: " + data.target.getRowVector(i));
-            System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
+            //for (int i = 1000; i < 1020; i++) {
+            //    System.out.println("Target: " + data.target.getRowVector(i));
+            //    System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
+            //}
+
+            double distanceErrorSum = 0.0;
+            for (int i = 0; i < data.input.getRowDimension(); i++) {
+                RealVector targetVector = data.target.getRowVector(i);
+                distanceErrorSum += targetVector.getDistance(nn.predict(data.input.getRowVector(i)));
+            }
+
+            // It's more important for us to see how it work well in general. Local failures are OK.
+            final double distanceErrorAverage = distanceErrorSum / data.input.getRowDimension();
+            System.out.println("Average distance error = " + distanceErrorAverage);
+
+            if (distanceErrorAverage < minDistanceErrorAvg) {
+                minDistanceErrorAvg = distanceErrorAverage;
+                System.out.println("Storing new weights...");
+                try {
+                    MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
+                    writeSetup(Configuration.WEIGHTS_FILE, setup);
+                    System.out.println("OK, weights written to file");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
-
-        double distanceErrorSum = 0.0;
-        for (int i = 0; i < data.input.getRowDimension(); i++) {
-            RealVector targetVector = data.target.getRowVector(i);
-            distanceErrorSum += targetVector.getDistance(nn.predict(data.input.getRowVector(i)));
-        }
-        System.out.println("Total distance error = " + distanceErrorSum);
-
-        try {
-            MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
-            writeSetup(Configuration.WEIGHTS_FILE, setup);
-            System.out.println("OK, weights written to file");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private class ControllerData {
