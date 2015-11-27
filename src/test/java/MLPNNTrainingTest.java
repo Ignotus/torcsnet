@@ -73,10 +73,10 @@ public class MLPNNTrainingTest {
         // The best nhidden was 5 on the test data. LR = 0.16.
         //for (int nhidden = 5; nhidden < 50; nhidden += 5)
         {
-            int nhidden = 5;
-            //for (double lr = 0.02; lr < 0.5; lr *= 2)
+            int nhidden = 25;
+            //for (double lr = 0.02; lr < 1.0; lr *= 2)
             {
-                double lr = 0.16;
+                double lr = 0.32;
                 System.out.println("Checking hidden layer size: " + nhidden);
                 System.out.println("Learning rate selection: " + lr);
                 MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
