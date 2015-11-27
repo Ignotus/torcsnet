@@ -34,7 +34,6 @@ public class MLPNNController implements NeuralNetworkController {
         // Vector contains [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
         RealVector prediction = mNN.predict(vector);
         mNorm.denormalizeOutput(prediction);
-        System.out.println("De-normalized prediction: " + prediction);
         mPrediction = prediction;
     }
 
