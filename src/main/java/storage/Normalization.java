@@ -24,14 +24,14 @@ public class Normalization {
 
         for (int i = 0; i < data.getColumnDimension(); i++) {
             double min = data.getColumnVector(i).getMinValue();
-            double max = data.getColumnVector(i).getMaxIndex();
+            double max = data.getColumnVector(i).getMaxValue();
             norm.inputMin.setEntry(i, min);
             norm.inputDiff.setEntry(i, max - min);
         }
 
         for (int i = 0; i < target.getColumnDimension(); i++) {
             double min = target.getColumnVector(i).getMinValue();
-            double max = target.getColumnVector(i).getMaxIndex();
+            double max = target.getColumnVector(i).getMaxValue();
             norm.targetMin.setEntry(i, min);
             norm.targetDiff.setEntry(i, max - min);
         }

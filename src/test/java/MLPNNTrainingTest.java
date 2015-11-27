@@ -11,8 +11,8 @@ import java.util.Scanner;
  * Training procedure for MLP with track data
  */
 public class MLPNNTrainingTest {
-    private static final int HIDDEN_LAYER_SIZE = 10;
-    private static final int TRAIN_ITERATIONS = 100;
+    private static final int HIDDEN_LAYER_SIZE = 20;
+    private static final int TRAIN_ITERATIONS = 1000;
 
     // The values that we take as input for predictions
     public static final int[] INPUTS = new int[] {
@@ -64,7 +64,20 @@ public class MLPNNTrainingTest {
         System.out.println("Training...");
 
         MLPNN nn = new MLPNN(INPUTS.length, HIDDEN_LAYER_SIZE, OUTPUTS.length);
-        nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.002);
+        nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.02);
+
+        for (int i = 1000; i < 1020; i++) {
+            System.out.println("Target: " + data.target.getRowVector(i));
+            System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
+        }
+
+        double distanceErrorSum = 0.0;
+        for (int i = 0; i < data.input.getRowDimension(); i++) {
+            RealVector targetVector = data.target.getRowVector(i);
+            distanceErrorSum += targetVector.getDistance(nn.predict(data.input.getRowVector(i)));
+        }
+        System.out.println("Total distance error = " + distanceErrorSum);
+
         try {
             MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
             writeSetup(Configuration.WEIGHTS_FILE, setup);

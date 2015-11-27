@@ -33,7 +33,6 @@ public class MLPNNController implements NeuralNetworkController {
         RealVector vector = sensorsToVector(model);
         // Vector contains [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
         RealVector prediction = mNN.predict(vector);
-        prediction = prediction.getSubVector(1, prediction.getDimension() - 1);
         mNorm.denormalizeOutput(prediction);
         System.out.println("De-normalized prediction: " + prediction);
         mPrediction = prediction;
@@ -56,7 +55,8 @@ public class MLPNNController implements NeuralNetworkController {
 
     private static MLPNNSetup readSetup(String filename) throws IOException, ClassNotFoundException {
         ClassLoader classLoader = MLPNNController.class.getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        // todo fix classloader
+        File file = new File(filename);//new File(classLoader.getResource(filename).getFile());
 
         MLPNNSetup setup = new MLPNNSetup();
         FileInputStream fis = new FileInputStream(file);

@@ -88,7 +88,7 @@ public class MLPNN {
 
     public RealVector predict(RealVector input) {
         pass(input);
-        return mOutputLayer;
+        return mOutputLayer.getSubVector(1, mOutputLayer.getDimension() - 1);
     }
 
     // data: matrix of dim  N X mInputLayerSize

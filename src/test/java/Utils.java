@@ -9,7 +9,7 @@ public class Utils {
     public static void saveChart(Chart chart, String name) {
         try {
             /* TODO: Maybe change output folder location */
-            BitmapEncoder.saveBitmapWithDPI(chart, "./" + name + ".png", BitmapEncoder.BitmapFormat.PNG, 300);
+            BitmapEncoder.saveBitmapWithDPI(chart, "/tmp/" + name + ".png", BitmapEncoder.BitmapFormat.PNG, 300);
         } catch (IOException e) {
             e.printStackTrace();
         }

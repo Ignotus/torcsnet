@@ -13,7 +13,7 @@ public class MLPNNTest {
         System.out.println("MLPNN Test started");
 
         /* Generate sinusoidal input data */
-        RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
+            RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
         RealMatrix X = new Array2DRowRealMatrix(x.getDimension(), 1);
         RealVector y = x.map(v -> Math.sin(v) / 2 + 0.5);
         RealMatrix Y = new Array2DRowRealMatrix(y.getDimension(), 1);
@@ -24,11 +24,11 @@ public class MLPNNTest {
             Y.setRow(i, new double[]{y.getEntry(i)});
         }
 
-        MLPNN nn = new MLPNN(1, 10, 1);
+        MLPNN nn = new MLPNN(1, 30, 1);
 
         long start = System.currentTimeMillis();
         // Train for 100 iterations
-        nn.train(X, Y, 100, 0.1);
+        nn.train(X, Y, 10000, 0.2);
         System.out.println("MLPNNTest: Training took " + (System.currentTimeMillis() - start) + "ms");
 
         /* Get predictions */
@@ -39,6 +39,9 @@ public class MLPNNTest {
             RealVector pred = nn.predict(X.getRowVector(i));
             yPredicted[i] = pred.getEntry(1);
             squaredError += Math.pow((yPredicted[i] - y.getEntry(i)), 2);
+            System.out.println("yValue: " + y.getEntry(i));
+            System.out.println("yPred: " + yPredicted[i]);
+
         }
         System.out.println("MLPNNTest: squared error: " + squaredError);
         System.out.println("MLPNNTest: Predicting took " + (System.currentTimeMillis() - start) + "ms");
