@@ -58,44 +58,57 @@ public class MLPNNTrainingTest {
         norm.normalizeInput(data.input);
         norm.normalizeTarget(data.target);
 
+        final int numInput = data.input.getRowDimension();
+        RealMatrix trainInput = data.input.getSubMatrix(0, numInput * 9 / 10, 0, data.input.getColumnDimension() - 1);
+        RealMatrix trainTarget = data.target.getSubMatrix(0, numInput * 9 / 10, 0, data.target.getColumnDimension() - 1);
+
+        RealMatrix testInput = data.input.getSubMatrix(numInput * 9 / 10, numInput - 1, 0, data.input.getColumnDimension() - 1);
+        RealMatrix testTarget = data.target.getSubMatrix(numInput * 9 / 10, numInput - 1, 0, data.target.getColumnDimension() - 1);
+
         System.out.println("Read " + data.input.getRowDimension() + " input rows, "
                 + data.target.getRowDimension() + " target rows");
         System.out.println("Training...");
 
         double minDistanceErrorAvg = Double.MAX_VALUE;
-        //for (int nhidden = 5; nhidden < 50; nhidden += 5) {
-        for (int nhidden = 20; nhidden < 21; nhidden += 5) {
-            System.out.println("Checking hidden layer size: " + nhidden);
-            MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
-            nn.train(data.input, data.target, TRAIN_ITERATIONS, 0.02);
+        // The best nhidden was 5 on the test data. LR = 0.16.
+        //for (int nhidden = 5; nhidden < 50; nhidden += 5)
+        {
+            int nhidden = 5;
+            //for (double lr = 0.02; lr < 0.5; lr *= 2)
+            {
+                double lr = 0.16;
+                System.out.println("Checking hidden layer size: " + nhidden);
+                System.out.println("Learning rate selection: " + lr);
+                MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
+                nn.train(trainInput, trainTarget, TRAIN_ITERATIONS, lr);
 
-            //for (int i = 1000; i < 1020; i++) {
-            //    System.out.println("Target: " + data.target.getRowVector(i));
-            //    System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
-            //}
+                //for (int i = 1000; i < 1020; i++) {
+                //    System.out.println("Target: " + data.target.getRowVector(i));
+                //    System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
+                //}
 
-            double distanceErrorSum = 0.0;
-            for (int i = 0; i < data.input.getRowDimension(); i++) {
-                RealVector targetVector = data.target.getRowVector(i);
-                distanceErrorSum += targetVector.getDistance(nn.predict(data.input.getRowVector(i)));
-            }
+                double distanceErrorSum = 0.0;
+                for (int i = 0; i < testInput.getRowDimension(); i++) {
+                    RealVector targetVector = testTarget.getRowVector(i);
+                    distanceErrorSum += targetVector.getDistance(nn.predict(testInput.getRowVector(i)));
+                }
 
-            // It's more important for us to see how it work well in general. Local failures are OK.
-            final double distanceErrorAverage = distanceErrorSum / data.input.getRowDimension();
-            System.out.println("Average distance error = " + distanceErrorAverage);
+                // It's more important for us to see how it work well in general. Local failures are OK.
+                final double distanceErrorAverage = distanceErrorSum / testInput.getRowDimension();
+                System.out.println("Average distance error = " + distanceErrorAverage);
 
-            if (distanceErrorAverage < minDistanceErrorAvg) {
-                minDistanceErrorAvg = distanceErrorAverage;
-                System.out.println("Storing new weights...");
-                try {
-                    MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
-                    writeSetup(Configuration.WEIGHTS_FILE, setup);
-                    System.out.println("OK, weights written to file");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (distanceErrorAverage < minDistanceErrorAvg) {
+                    minDistanceErrorAvg = distanceErrorAverage;
+                    System.out.println("Storing new weights...");
+                    try {
+                        MLPNNSetup setup = new MLPNNSetup(nn.mW1, nn.mW2, norm);
+                        writeSetup(Configuration.WEIGHTS_FILE, setup);
+                        System.out.println("OK, weights written to file");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
         }
     }
 
