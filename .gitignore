@@ -25,3 +25,4 @@ src/main/java/target
 data/
 *.png
 weights.dump
+.DS_Store
