@@ -37,5 +37,5 @@ public class Configuration {
             "/home/ignotus/Development/torcsnet/data/");
     public static final int LINE_VALUES = Integer.parseInt(Configuration.value("line_values", "27"));
     public static final String WEIGHTS_FILE = Configuration.value("weights_file",
-            "/memory/weights.dump");
+            "/home/ignotus/Development/torcsnet/src/main/resources/memory/weights.dump");
 }

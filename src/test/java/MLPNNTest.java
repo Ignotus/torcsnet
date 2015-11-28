@@ -37,8 +37,8 @@ public class MLPNNTest {
             RealVector pred = nn.predict(X.getRowVector(i));
             yPredicted[i] = pred.getEntry(0);
             squaredError += Math.pow((yPredicted[i] - y.getEntry(i)), 2);
-            System.out.println("yValue: " + y.getEntry(i));
-            System.out.println("yPred: " + yPredicted[i]);
+            //System.out.println("yValue: " + y.getEntry(i));
+            //System.out.println("yPred: " + yPredicted[i]);
 
         }
         System.out.println("MLPNNTest: squared error: " + squaredError);

@@ -13,6 +13,8 @@ autoScalaLibrary := false
 packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
 
+test in assembly := {}
+
 libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.10" % "test"
