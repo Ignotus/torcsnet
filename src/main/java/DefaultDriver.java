@@ -80,7 +80,8 @@ public class DefaultDriver extends AbstractDriver {
         double braking = mController.getBraking();
 
         if (acceleration > braking) {
-            action.accelerate = acceleration;
+            // Temporary solution for safety
+            action.accelerate = acceleration / 2;
             action.brake = 0;
         } else {
             action.brake = braking;
