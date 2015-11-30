@@ -44,7 +44,7 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             race.laps = 1;
 
             // for speedup set withGUI to false
-            results = race.runRace(drivers, false);
+            results = race.runRace(drivers, true);
 
             // close the data recorder
             if (dataRecorder != null) {

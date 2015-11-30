@@ -55,8 +55,8 @@ public class MLPNNTrainingTest {
 
         /* Normalize and train on the data */
         Normalization norm = Normalization.createNormalization(data.input, data.target);
-        norm.normalizeInput(data.input);
-        norm.normalizeTarget(data.target);
+        norm.normalizeInput(data.input, 0, 1);
+        norm.normalizeTarget(data.target, 0, 1);
 
         final int numInput = data.input.getRowDimension();
         RealMatrix trainInput = data.input.getSubMatrix(0, numInput * 9 / 10, 0, data.input.getColumnDimension() - 1);
@@ -186,9 +186,9 @@ public class MLPNNTrainingTest {
         MatrixUtils.deserializeRealMatrix(setup, "W1", ois);
         MatrixUtils.deserializeRealMatrix(setup, "W2", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "inputMin", ois);
-        MatrixUtils.deserializeRealVector(setup.norm, "inputDiff", ois);
+        MatrixUtils.deserializeRealVector(setup.norm, "inputMax", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "targetMin", ois);
-        MatrixUtils.deserializeRealVector(setup.norm, "targetDiff", ois);
+        MatrixUtils.deserializeRealVector(setup.norm, "targetMax", ois);
         return setup;
     }
 
@@ -198,9 +198,9 @@ public class MLPNNTrainingTest {
         MatrixUtils.serializeRealMatrix(setup.W1, oos);
         MatrixUtils.serializeRealMatrix(setup.W2, oos);
         MatrixUtils.serializeRealVector(setup.norm.inputMin, oos);
-        MatrixUtils.serializeRealVector(setup.norm.inputDiff, oos);
+        MatrixUtils.serializeRealVector(setup.norm.inputMax, oos);
         MatrixUtils.serializeRealVector(setup.norm.targetMin, oos);
-        MatrixUtils.serializeRealVector(setup.norm.targetDiff, oos);
+        MatrixUtils.serializeRealVector(setup.norm.targetMax, oos);
         oos.close();
     }
 

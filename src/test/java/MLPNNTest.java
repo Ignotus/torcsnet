@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.knowm.xchart.Chart;
 import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class MLPNNTest {
     @Test

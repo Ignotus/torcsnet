@@ -1,3 +1,4 @@
+import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -7,7 +8,7 @@ import org.apache.commons.math3.linear.RealVector;
  * Multilayer Perceptron implementation with one hidden layer
  */
 public class MLPNN {
-    private static final Sigmoid sigmoid = new Sigmoid();
+    private UnivariateFunction mActivationFunction = new Sigmoid();
 
     // Layers sizes
     private int mInputLayerSize;
@@ -42,22 +43,19 @@ public class MLPNN {
         this.mHiddenLayerGradients = new ArrayRealVector(hiddenLayerSize + 1);
     }
 
-    public final int getInputLayerSize() {
-        return mInputLayerSize;
-    }
-
-    public final int getHiddenLayerSize() {
-        return mHiddenLayerSize;
-    }
-
-    public final int getOutputLayerSize() {
-        return mOutputLayerSize;
-    }
-
     public void setWeights(RealMatrix W1, RealMatrix W2) {
         this.mW1 = W1;
         this.mW2 = W2;
     }
+
+    public void setActivationFunction(UnivariateFunction func) {
+        this.mActivationFunction = func;
+    }
+
+    public final int getInputLayerSize() {
+        return mInputLayerSize;
+    }
+
 
     public RealVector predict(RealVector input) {
         pass(input);
@@ -67,6 +65,7 @@ public class MLPNN {
     // data: matrix of dim  N X mInputLayerSize
     // target: matrix of dim N X mOutputLayerSize
     public void train(RealMatrix data, RealMatrix target, int numIterations, double learningRate) {
+        // If the weights are not set, randomly initialize the weight matrices
         if (this.mW1 == null) {
             this.mW1 = Randomizer.newMatrix(mHiddenLayerSize + 1, mInputLayerSize + 1);
         }
@@ -98,23 +97,21 @@ public class MLPNN {
         mInputLayer.setSubVector(1, input);
 
         // Pass data through the network
-        double sum;
-        for (int i = 1; i <= mHiddenLayerSize; i++) {
-            // Input to hidden layer
-            sum = 0.0;
-            for (int j = 0; j <= mInputLayerSize; j++) {
-                sum += mW1.getEntry(i, j) * mInputLayer.getEntry(j);
-            }
-            mHiddenLayer.setEntry(i, sigmoid.value(sum));
-        }
+        passLayer(mInputLayer, mHiddenLayer, mW1);
 
-        for (int i = 1; i <= mOutputLayerSize; i++) {
-            // Hidden to output layer
-            sum = 0.0;
-            for (int j = 0; j <= mHiddenLayerSize; j++) {
-                sum += mW2.getEntry(i, j) * mHiddenLayer.getEntry(j);
+        // Hidden to output
+        passLayer(mHiddenLayer, mOutputLayer, mW2);
+    }
+
+    private void passLayer(RealVector fromLayer, RealVector toLayer, RealMatrix weights) {
+        int toLayerSize = toLayer.getDimension();
+        int fromLayerSize = fromLayer.getDimension();
+        for (int i = 1; i < toLayerSize; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < fromLayerSize; j++) {
+                sum += weights.getEntry(i, j) * fromLayer.getEntry(j);
             }
-            mOutputLayer.setEntry(i, sigmoid.value(sum));
+            toLayer.setEntry(i, mActivationFunction.value(sum));
         }
     }
 
@@ -144,18 +141,20 @@ public class MLPNN {
         }
 
         /* Update output layer weights (gradient descent) */
-        for (int i = 1; i <= mOutputLayerSize; i++) {
-            double grad = mOutputLayerGradients.getEntry(i);
-            for (int j = 0; j <= mHiddenLayerSize; j++) {
-                mW2.addToEntry(i, j, learningRate * grad * mHiddenLayer.getEntry(j));
-            }
-        }
+        updateWeights(mW2, mOutputLayerGradients, mHiddenLayer, learningRate);
 
         /* Update hidden layer weights (gradient descent) */
-        for (int i = 1; i <= mHiddenLayerSize; i++) {
-            double grad = mHiddenLayerGradients.getEntry(i);
-            for (int j = 0; j <= mInputLayerSize; j++) {
-                mW1.addToEntry(i, j, learningRate * grad * mInputLayer.getEntry(j));
+        updateWeights(mW1, mHiddenLayerGradients, mInputLayer, learningRate);
+    }
+
+    private static void updateWeights(RealMatrix w, RealVector gradients,
+                                      RealVector layer, double learningRate) {
+        int gradientsDim = gradients.getDimension();
+        int layerDim = layer.getDimension();
+        for (int i = 1; i < gradientsDim; i++) {
+            double grad = gradients.getEntry(i);
+            for (int j = 0; j < layerDim; j++) {
+                w.addToEntry(i, j, learningRate * grad * layer.getEntry(j));
             }
         }
     }

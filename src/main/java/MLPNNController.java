@@ -30,7 +30,7 @@ public class MLPNNController implements NeuralNetworkController {
         RealVector vector = sensorsToVector(model);
         // Vector contains [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
         RealVector prediction = mNN.predict(vector);
-        mNorm.denormalizeOutput(prediction);
+        mNorm.denormalizeOutput(prediction, 0, 1);
         mPrediction = prediction;
     }
 
@@ -58,9 +58,9 @@ public class MLPNNController implements NeuralNetworkController {
         MatrixUtils.deserializeRealMatrix(setup, "W1", ois);
         MatrixUtils.deserializeRealMatrix(setup, "W2", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "inputMin", ois);
-        MatrixUtils.deserializeRealVector(setup.norm, "inputDiff", ois);
+        MatrixUtils.deserializeRealVector(setup.norm, "inputMax", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "targetMin", ois);
-        MatrixUtils.deserializeRealVector(setup.norm, "targetDiff", ois);
+        MatrixUtils.deserializeRealVector(setup.norm, "targetMax", ois);
         return setup;
     }
 
@@ -74,7 +74,7 @@ public class MLPNNController implements NeuralNetworkController {
             vector.setEntry(i + 2, trackEdgeSensors[i]);
         }
 
-        mNorm.normalizeInputVector(vector);
+        mNorm.normalizeInputVector(vector, 0, 1);
         return vector;
     }
 
