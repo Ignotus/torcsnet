@@ -37,7 +37,7 @@ public class Normalization {
         return norm;
     }
 
-    /* Normalize data to interval between min and max */
+    /* Normalize data to bounds given by min and max */
     public void normalizeInput(RealMatrix m, double toMin, double toMax) {
         for (int i = 0; i < m.getColumnDimension(); i++) {
             double fromMin = inputMin.getEntry(i);
@@ -48,7 +48,7 @@ public class Normalization {
         }
     }
 
-    /* Normalize data to interval between 0 and 1 */
+    /* Normalize data to interval between toMin and toMax */
     public void normalizeTarget(RealMatrix m, double toMin, double toMax) {
         for (int i = 0; i < m.getColumnDimension(); i++) {
             for (int j = 0; j < m.getRowDimension(); j++) {

@@ -1,6 +1,3 @@
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.function.Sigmoid;
-import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -9,7 +6,8 @@ import org.apache.commons.math3.linear.RealVector;
  * Multilayer Perceptron implementation with one hidden layer
  */
 public class MLPNN {
-    private UnivariateFunction mActivationFunction = new Sigmoid();
+    private ActivationFunction mActivationFunction = new ActivationFunctions.Tanh();
+    private ActivationFunction mSigmoid = new ActivationFunctions.Sigmoid();
 
     // Layers sizes
     private int mInputLayerSize;
@@ -49,7 +47,7 @@ public class MLPNN {
         this.mW2 = W2;
     }
 
-    public void setActivationFunction(UnivariateFunction func) {
+    public void setActivationFunction(ActivationFunction func) {
         this.mActivationFunction = func;
     }
 
@@ -96,14 +94,14 @@ public class MLPNN {
         // Fill input layer
         mInputLayer.setSubVector(1, input);
 
-        // Pass data through the network
-        passLayer(mInputLayer, mHiddenLayer, mW1);
+        // Pass data through the network (use user-specified activation function)
+        passLayer(mInputLayer, mHiddenLayer, mW1, mActivationFunction);
 
-        // Hidden to output
-        passLayer(mHiddenLayer, mOutputLayer, mW2);
+        // Hidden to output (use sigmoid)
+        passLayer(mHiddenLayer, mOutputLayer, mW2, mSigmoid);
     }
 
-    private void passLayer(RealVector fromLayer, RealVector toLayer, RealMatrix weights) {
+    private void passLayer(RealVector fromLayer, RealVector toLayer, RealMatrix weights, ActivationFunction func) {
         int toLayerSize = toLayer.getDimension();
         int fromLayerSize = fromLayer.getDimension();
         for (int i = 1; i < toLayerSize; i++) {
@@ -111,7 +109,8 @@ public class MLPNN {
             for (int j = 0; j < fromLayerSize; j++) {
                 sum += weights.getEntry(i, j) * fromLayer.getEntry(j);
             }
-            toLayer.setEntry(i, mActivationFunction.value(sum));
+
+            toLayer.setEntry(i, func.value(sum));
         }
     }
 
@@ -127,7 +126,7 @@ public class MLPNN {
         for (int i = 1; i <= mOutputLayerSize; i++) {
             double output = mOutputLayer.getEntry(i);
             double error = target.getEntry(i - 1) - output;
-            mOutputLayerGradients.setEntry(i, error * output * (1.0 - output));
+            mOutputLayerGradients.setEntry(i, error * mSigmoid.derivative(output));
         }
 
         /* Compute hidden layer gradients */
@@ -137,7 +136,7 @@ public class MLPNN {
                 errorSum += mW2.getEntry(j, i) * mOutputLayerGradients.getEntry(j);
             }
             double output = mHiddenLayer.getEntry(i);
-            mHiddenLayerGradients.setEntry(i, errorSum * output * (1.0 - output));
+            mHiddenLayerGradients.setEntry(i, errorSum * mActivationFunction.derivative(output));
         }
 
         /* Update output layer weights (gradient descent) */

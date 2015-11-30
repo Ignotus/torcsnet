@@ -1,4 +1,3 @@
-import org.apache.commons.math3.analysis.function.Sigmoid;
 import storage.DataRecorder;
 import storage.Normalization;
 import org.apache.commons.math3.linear.*;
@@ -56,7 +55,7 @@ public class MLPNNTrainingTest {
 
         /* Normalize and train on the data */
         Normalization norm = Normalization.createNormalization(data.input, data.target);
-        norm.normalizeInput(data.input, 0, 1);
+        norm.normalizeInput(data.input, -1, 1);
         norm.normalizeTarget(data.target, 0, 1);
 
         final int numInput = data.input.getRowDimension();
@@ -81,7 +80,7 @@ public class MLPNNTrainingTest {
                 System.out.println("Checking hidden layer size: " + nhidden);
                 System.out.println("Learning rate selection: " + lr);
                 MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
-                nn.setActivationFunction(new Sigmoid());
+                nn.setActivationFunction(new ActivationFunctions.Tanh());
                 nn.train(trainInput, trainTarget, TRAIN_ITERATIONS, lr);
 
                 double distanceErrorSum = 0.0;
