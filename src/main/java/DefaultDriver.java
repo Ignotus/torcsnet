@@ -12,7 +12,7 @@ public class DefaultDriver extends AbstractDriver {
 
     private NeuralNetworkController mController;
 
-    private static final String DRIVER_NAME = "Cocaine";
+    private static final String DRIVER_NAME = "Coffeine";
 
     private DataRecorder mDataRecorder;
 
