@@ -23,17 +23,15 @@ public class Normalization {
         norm.targetMax = new ArrayRealVector(target.getColumnDimension());
 
         for (int i = 0; i < data.getColumnDimension(); i++) {
-            double min = data.getColumnVector(i).getMinValue();
-            double max = data.getColumnVector(i).getMaxValue();
-            norm.inputMin.setEntry(i, min);
-            norm.inputMin.setEntry(i, max);
+            RealVector vec = data.getColumnVector(i);
+            norm.inputMin.setEntry(i, vec.getMinValue());
+            norm.inputMax.setEntry(i, vec.getMaxValue());
         }
 
         for (int i = 0; i < target.getColumnDimension(); i++) {
-            double min = target.getColumnVector(i).getMinValue();
-            double max = target.getColumnVector(i).getMaxValue();
-            norm.targetMin.setEntry(i, min);
-            norm.targetMax.setEntry(i, max);
+            RealVector vec = target.getColumnVector(i);
+            norm.targetMin.setEntry(i, vec.getMinValue());
+            norm.targetMax.setEntry(i, vec.getMaxValue());
         }
 
         return norm;
@@ -66,7 +64,7 @@ public class Normalization {
     }
 
     public void denormalizeOutput(RealVector v, double lower, double upper) {
-        for (int i = 0; i < targetMin.getDimension(); i++) {
+        for (int i = 0; i < v.getDimension(); i++) {
             v.setEntry(i, denormValue(v.getEntry(i), targetMin.getEntry(i), targetMax.getEntry(i), lower, upper));
         }
     }
@@ -76,7 +74,7 @@ public class Normalization {
     }
 
     private static double denormValue(double normValue, double dataMin, double dataMax, double imin, double imax) {
-        return (normValue - imin) / (imax - imin) * (dataMax - dataMin) + dataMin;
+        return ((normValue - imin) / (imax - imin)) * (dataMax - dataMin) + dataMin;
     }
 
 }

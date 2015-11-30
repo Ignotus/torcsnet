@@ -1,6 +1,8 @@
 import java.io.*;
 
 import cicontest.torcs.client.SensorModel;
+import org.apache.commons.math3.analysis.function.Sigmoid;
+import org.apache.commons.math3.analysis.function.Tanh;
 import storage.Normalization;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.MatrixUtils;
@@ -19,6 +21,7 @@ public class MLPNNController implements NeuralNetworkController {
         int numOutputs = setup.W2.getRowDimension() - 1;
         MLPNNController controller = new MLPNNController();
         controller.mNN = new MLPNN(numInputs, numHidden, numOutputs);
+        controller.mNN.setActivationFunction(new Sigmoid());
         controller.mNN.setWeights(setup.W1, setup.W2);
         controller.mNorm = setup.norm;
         controller.mPrediction = new ArrayRealVector(numOutputs);

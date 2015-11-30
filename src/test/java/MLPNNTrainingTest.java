@@ -1,3 +1,4 @@
+import org.apache.commons.math3.analysis.function.Sigmoid;
 import storage.DataRecorder;
 import storage.Normalization;
 import org.apache.commons.math3.linear.*;
@@ -80,12 +81,8 @@ public class MLPNNTrainingTest {
                 System.out.println("Checking hidden layer size: " + nhidden);
                 System.out.println("Learning rate selection: " + lr);
                 MLPNN nn = new MLPNN(INPUTS.length, nhidden, OUTPUTS.length);
+                nn.setActivationFunction(new Sigmoid());
                 nn.train(trainInput, trainTarget, TRAIN_ITERATIONS, lr);
-
-                //for (int i = 1000; i < 1020; i++) {
-                //    System.out.println("Target: " + data.target.getRowVector(i));
-                //    System.out.println("Pred: " + nn.predict(data.input.getRowVector(i)));
-                //}
 
                 double distanceErrorSum = 0.0;
                 for (int i = 0; i < testInput.getRowDimension(); i++) {

@@ -1,5 +1,6 @@
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.Sigmoid;
+import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -55,7 +56,6 @@ public class MLPNN {
     public final int getInputLayerSize() {
         return mInputLayerSize;
     }
-
 
     public RealVector predict(RealVector input) {
         pass(input);
