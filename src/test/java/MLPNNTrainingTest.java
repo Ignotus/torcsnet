@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -35,7 +36,7 @@ public class MLPNNTrainingTest {
             DataRecorder.SENSOR_TRACK_EDGE_16,
             DataRecorder.SENSOR_TRACK_EDGE_17,
             DataRecorder.SENSOR_TRACK_EDGE_18,
-            DataRecorder.SENSOR_TRACK_EDGE_19
+            DataRecorder.SENSOR_TRACK_EDGE_19,
     };
 
     // The values that we want to predict
@@ -55,7 +56,7 @@ public class MLPNNTrainingTest {
 
         /* Normalize and train on the data */
         Normalization norm = Normalization.createNormalization(data.input, data.target);
-        norm.normalizeInput(data.input, -1, 1);
+        norm.normalizeInput(data.input, 0, 1);
         norm.normalizeTarget(data.target, 0, 1);
 
         final int numInput = data.input.getRowDimension();
@@ -162,14 +163,22 @@ public class MLPNNTrainingTest {
             return null;
         }
 
-        /* Create matrices */
-        RealMatrix inputMatrix = new Array2DRowRealMatrix(inputVectors.size(), INPUTS.length);
-        RealMatrix targetMatrix = new Array2DRowRealMatrix(targetVectors.size(), OUTPUTS.length);
-        for (int i = 0; i < inputMatrix.getRowDimension(); i++) {
-            inputMatrix.setRowVector(i, inputVectors.get(i));
+        /* Create matrices, shuffle data  */
+        int numRows = inputVectors.size();
+        RealMatrix inputMatrix = new Array2DRowRealMatrix(numRows, INPUTS.length);
+        RealMatrix targetMatrix = new Array2DRowRealMatrix(numRows, OUTPUTS.length);
+
+        ArrayList<Integer> shuffledIndices = new ArrayList<>();
+        for (int i = 0; i < numRows; i++) {
+            shuffledIndices.add(i);
         }
-        for (int i = 0; i < targetMatrix.getRowDimension(); i++) {
-            targetMatrix.setRowVector(i, targetVectors.get(i));
+        Collections.shuffle(shuffledIndices);
+
+        for (int i = 0; i < numRows; i++) {
+            inputMatrix.setRowVector(i, inputVectors.get(shuffledIndices.get(i)));
+        }
+        for (int i = 0; i < numRows; i++) {
+            targetMatrix.setRowVector(i, targetVectors.get(shuffledIndices.get(i)));
         }
 
         return new ControllerData(inputMatrix, targetMatrix);

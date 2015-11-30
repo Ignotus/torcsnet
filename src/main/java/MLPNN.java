@@ -6,7 +6,7 @@ import org.apache.commons.math3.linear.RealVector;
  * Multilayer Perceptron implementation with one hidden layer
  */
 public class MLPNN {
-    private ActivationFunction mActivationFunction = new ActivationFunctions.Tanh();
+    private ActivationFunction mActivationFunction = new ActivationFunctions.Sigmoid();
     private ActivationFunction mSigmoid = new ActivationFunctions.Sigmoid();
 
     // Layers sizes

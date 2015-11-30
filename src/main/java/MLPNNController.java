@@ -19,7 +19,7 @@ public class MLPNNController implements NeuralNetworkController {
         int numOutputs = setup.W2.getRowDimension() - 1;
         MLPNNController controller = new MLPNNController();
         controller.mNN = new MLPNN(numInputs, numHidden, numOutputs);
-        controller.mNN.setActivationFunction(new ActivationFunctions.Tanh());
+        controller.mNN.setActivationFunction(new ActivationFunctions.Sigmoid());
         controller.mNN.setWeights(setup.W1, setup.W2);
         controller.mNorm = setup.norm;
         controller.mPrediction = new ArrayRealVector(numOutputs);
@@ -71,11 +71,12 @@ public class MLPNNController implements NeuralNetworkController {
         vector.setEntry(1, sensors.getAngleToTrackAxis());
 
         double []trackEdgeSensors = sensors.getTrackEdgeSensors();
+
         for (int i = 0; i < trackEdgeSensors.length; i++) {
             vector.setEntry(i + 2, trackEdgeSensors[i]);
         }
 
-        mNorm.normalizeInputVector(vector, -1, 1);
+        mNorm.normalizeInputVector(vector, 0, 1);
         return vector;
     }
 
