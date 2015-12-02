@@ -3,7 +3,6 @@
  * Created by sander on 30/11/15.
  */
 public class ActivationFunctions {
-
     public static class Sigmoid extends org.apache.commons.math3.analysis.function.Sigmoid implements ActivationFunction {
         @Override
         public double derivative(double sigmoidValue) {
@@ -17,5 +16,4 @@ public class ActivationFunctions {
             return 1.0 - (tanhValue * tanhValue);
         }
     }
-    
 }

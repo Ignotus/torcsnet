@@ -1,11 +1,12 @@
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import storage.MLPSetup;
 
 /**
  * Multilayer Perceptron implementation with one hidden layer
  */
-public class MLPNN {
+public class MLP {
     private ActivationFunction mActivationFunction = new ActivationFunctions.Sigmoid();
     private ActivationFunction mSigmoid = new ActivationFunctions.Sigmoid();
 
@@ -28,7 +29,7 @@ public class MLPNN {
     private RealVector mOutputLayerGradients;
     private RealVector mHiddenLayerGradients;
 
-    public MLPNN(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
+    public MLP(int inputLayerSize, int hiddenLayerSize, int outputLayerSize) {
         this.mInputLayerSize = inputLayerSize;
         this.mHiddenLayerSize = hiddenLayerSize;
         this.mOutputLayerSize = outputLayerSize;
@@ -40,6 +41,11 @@ public class MLPNN {
 
         this.mOutputLayerGradients = new ArrayRealVector(outputLayerSize + 1);
         this.mHiddenLayerGradients = new ArrayRealVector(hiddenLayerSize + 1);
+    }
+
+    public MLP(MLPSetup setup) {
+        this(setup.getNumInputs(), setup.getNumHiddens(), setup.getNumOutputs());
+        setWeights(setup.W1, setup.W2);
     }
 
     public void setWeights(RealMatrix W1, RealMatrix W2) {

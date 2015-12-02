@@ -5,6 +5,7 @@ import org.knowm.xchart.Chart;
 
 import java.io.IOException;
 
+
 public class Utils {
     public static void saveChart(Chart chart, String name) {
         try {
@@ -25,4 +26,7 @@ public class Utils {
         }
         return vector;
     }
+
+
+
 }
