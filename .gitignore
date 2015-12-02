@@ -4,7 +4,8 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+# *.jar we need jars for libs?
+
 *.war
 *.ear
 
