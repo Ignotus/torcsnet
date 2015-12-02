@@ -13,10 +13,9 @@ public class DefaultDriverGenome implements IGenome {
     public DefaultDriverGenome() {
         // init NN
         try {
-            mController = MLPNNController.initializeController("/memory/weights.dump");
+            mController = SingleMLPController.initializeController("/memory/weights.dump");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return;
         }
     }
 

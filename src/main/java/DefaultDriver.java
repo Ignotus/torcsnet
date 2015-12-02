@@ -12,7 +12,7 @@ public class DefaultDriver extends AbstractDriver {
 
     private NeuralNetworkController mController;
 
-    private static final String DRIVER_NAME = "Coffeine";
+    private static final String DRIVER_NAME = "Caffeine";
 
     private DataRecorder mDataRecorder;
 
@@ -78,6 +78,8 @@ public class DefaultDriver extends AbstractDriver {
         mController.updatePredictions(sensors);
         double acceleration = mController.getAcceleration();
         double braking = mController.getBraking();
+
+        //double frontDistance = sensors.getTrackEdgeSensors()[9];
 
         if (acceleration > braking) {
             // Temporary solution for safety

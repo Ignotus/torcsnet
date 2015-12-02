@@ -6,12 +6,11 @@ import org.junit.Test;
 import org.knowm.xchart.Chart;
 import org.knowm.xchart.ChartBuilder;
 import org.knowm.xchart.StyleManager;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
-public class MLPNNTest {
+public class MLPTest {
     @Test
     public void testTrainingAndPrediction() {
-        System.out.println("MLPNN Test started");
+        System.out.println("MLP Test started");
 
         /* Generate sinusoidal input data */
         RealVector x = Utils.linspace(0, MathUtils.TWO_PI, 100);
@@ -22,12 +21,12 @@ public class MLPNNTest {
         X.setColumnVector(0, x);
         Y.setColumnVector(0, y);
 
-        MLPNN nn = new MLPNN(1, 30, 1);
+        MLP nn = new MLP(1, 30, 1);
 
         long start = System.currentTimeMillis();
         // Train for 100 iterations
         nn.train(X, Y, 10000, 0.2);
-        System.out.println("MLPNNTest: Training took " + (System.currentTimeMillis() - start) + "ms");
+        System.out.println("MLPTest: Training took " + (System.currentTimeMillis() - start) + "ms");
 
         /* Get predictions */
         double squaredError = 0.0;
@@ -41,8 +40,8 @@ public class MLPNNTest {
             //System.out.println("yPred: " + yPredicted[i]);
 
         }
-        System.out.println("MLPNNTest: squared error: " + squaredError);
-        System.out.println("MLPNNTest: Predicting took " + (System.currentTimeMillis() - start) + "ms");
+        System.out.println("MLPTest: squared error: " + squaredError);
+        System.out.println("MLPTest: Predicting took " + (System.currentTimeMillis() - start) + "ms");
 
         /* Save results to chart */
         double[] xplot = x.toArray();
