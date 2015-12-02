@@ -3,6 +3,9 @@ import sbt.Package.ManifestAttributes
 name := "torcsnet"
 
 unmanagedJars in Compile += file("libs/CIContest-driver.jar")
+unmanagedJars in Compile += file("libs/xstream-1.3.1.jar")
+unmanagedJars in Compile += file("libs/neuroph-2.3.jar")
+unmanagedJars in Compile += file("libs/neat-0.9.jar")
 
 version := "0.1"
 
