@@ -13,7 +13,7 @@ public class Configuration {
         }
     }
 
-    private static final String value(final String name, final String defaultValue) {
+    private static String value(final String name, final String defaultValue) {
         if (ini == null) {
             return defaultValue;
         }
@@ -35,11 +35,12 @@ public class Configuration {
     // Should contain *.csv files for NN training
     public static final String CSV_DIRECTORY = Configuration.value("csv_directory",
             "/Users/sander/Downloads/without_noise");
-    public static final int LINE_VALUES = Integer.parseInt(Configuration.value("line_values", "27"));
+
+    // For reading/writing weights with 1 NN
     public static final String WEIGHTS_FILE = Configuration.value("weights_file",
             "/Users/sander/GitHub/torcsnet/src/main/resources/memory/weights.dump");
 
-    // For training with 3 separate NNs
+    // For use with 3 separate NNs (acceleration, steering, braking)
     public static final String WEIGHTS_FILE_ACCEL = Configuration.value("weights_accel_file",
             "/Users/sander/GitHub/torcsnet/src/main/resources/memory/weights_accel.dump");
 
