@@ -16,7 +16,6 @@ public class SingleMLPController implements NeuralNetworkController {
         MLPSetup setup = MLPSetup.readSetup(weightsFile);
         SingleMLPController controller = new SingleMLPController();
         controller.mNN = new MLP(setup);
-        controller.mNN.setActivationFunction(new ActivationFunctions.Sigmoid());
         controller.mNN.setWeights(setup.W1, setup.W2);
         controller.mNorm = setup.norm;
         controller.mPrediction = new ArrayRealVector(setup.getNumOutputs());
@@ -28,10 +27,7 @@ public class SingleMLPController implements NeuralNetworkController {
         RealVector vector = sensorsToVector(model);
         RealVector prediction = mNN.predict(vector);
         // Vector contains [ACTION_ACCELERATION, ACTION_STEERING, ACTION_BRAKING]
-        System.out.println("Pred: " + prediction);
-
         mNorm.denormalizeOutput(prediction, 0, 1);
-        System.out.println("Denormalized: " + prediction);
         mPrediction = prediction;
     }
 

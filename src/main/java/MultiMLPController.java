@@ -44,9 +44,9 @@ public class MultiMLPController implements NeuralNetworkController {
         RealVector predictionAcc = mNNAcceleration.predict(sensorsToVector(model, mNNAcceleration, mNormAccel));
         RealVector predictionSteering = mNNSteering.predict(sensorsToVector(model, mNNSteering, mNormSteering));
         RealVector predictionBraking = mNNBraking.predict(sensorsToVector(model, mNNBraking, mNormBraking));
-        mNormAccel.denormalizeOutput(predictionAcc, 0, 1);
-        mNormSteering.denormalizeOutput(predictionSteering, 0, 1);
-        mNormBraking.denormalizeOutput(predictionBraking, 0, 1);
+        mNormAccel.denormalizeOutput(predictionAcc, 0.2, 0.8);
+        mNormSteering.denormalizeOutput(predictionSteering, 0.2, 0.8);
+        mNormBraking.denormalizeOutput(predictionBraking, 0.2, 0.8);
         mAcceleration = predictionAcc.getEntry(0);
         mSteering = predictionSteering.getEntry(0);
         mBraking = predictionBraking.getEntry(0);
@@ -73,7 +73,6 @@ public class MultiMLPController implements NeuralNetworkController {
         vector.setEntry(1, sensors.getAngleToTrackAxis());
 
         double []trackEdgeSensors = sensors.getTrackEdgeSensors();
-
         for (int i = 0; i < trackEdgeSensors.length; i++) {
             vector.setEntry(i + 2, trackEdgeSensors[i]);
         }

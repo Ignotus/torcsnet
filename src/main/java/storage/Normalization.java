@@ -70,7 +70,15 @@ public class Normalization {
     }
 
     private static double normValue(double v, double dataMin, double dataMax, double toMin, double toMax) {
-        return ((v - dataMin) / (dataMax - dataMin)) * (toMax - toMin) + toMin;
+        double normalized = ((v - dataMin) / (dataMax - dataMin)) * (toMax - toMin) + toMin;
+        if (normalized > toMax) {
+            normalized = toMax;
+        }
+        if (normalized < toMin) {
+            normalized = toMin;
+        }
+
+        return normalized;
     }
 
     private static double denormValue(double normValue, double dataMin, double dataMax, double imin, double imax) {
