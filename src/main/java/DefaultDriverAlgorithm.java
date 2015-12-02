@@ -4,6 +4,8 @@ import cicontest.algorithm.abstracts.AbstractAlgorithm;
 import cicontest.algorithm.abstracts.AbstractRace;
 import cicontest.algorithm.abstracts.DriversUtils;
 import cicontest.torcs.controller.Driver;
+import cicontest.torcs.client.Controller;
+import cicontest.torcs.race.Race;
 import storage.DataRecorder;
 import race.TorcsConfiguration;
 
@@ -39,12 +41,20 @@ public class DefaultDriverAlgorithm extends AbstractAlgorithm {
             DriversUtils.storeGenome(drivers[0]);
 
             // start a race
-            DefaultRace race = new DefaultRace();
-            race.setTrack( AbstractRace.DefaultTracks.getTrack(0));
-            race.laps = 1;
+            Race race = new Race();
+            race.setTrack("road", "aalborg");
+            race.setTermination(Race.Termination.LAPS, 1);
+            race.setStage(Controller.Stage.RACE);
+
+            for (int i = 0; i < 3; ++i) {
+                DefaultDriver driver = new DefaultDriver();
+                driver.loadGenome(genome);
+                race.addCompetitor(driver);
+            }
 
             // for speedup set withGUI to false
-            results = race.runRace(drivers, false);
+            race.runWithGUI();
+            //race.run();
 
             // close the data recorder
             if (dataRecorder != null) {
