@@ -44,6 +44,7 @@ public class MLPSetup {
         MatrixUtils.deserializeRealVector(setup.norm, "inputMax", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "targetMin", ois);
         MatrixUtils.deserializeRealVector(setup.norm, "targetMax", ois);
+        ois.close();
         return setup;
     }
 

@@ -9,6 +9,7 @@ import cicontest.torcs.genome.IGenome;
 import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
+    private int mIndex;
 
     private NeuralNetworkController mController;
 
@@ -23,6 +24,7 @@ public class DefaultDriver extends AbstractDriver {
         enableExtras(new ABS());
     }
 
+
     public void loadGenome(IGenome genome) {
         //if (genome instanceof DefaultDriverGenome) {
             DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
@@ -31,6 +33,14 @@ public class DefaultDriver extends AbstractDriver {
         //} else {
         //    System.err.println("Invalid Genome assigned");
         //}
+    }
+
+    public int getIndex() {
+        return mIndex;
+    }
+
+    public void setIndex(int i) {
+        this.mIndex = i;
     }
 
     public String getDriverName() {

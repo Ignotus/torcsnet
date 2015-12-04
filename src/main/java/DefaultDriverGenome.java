@@ -9,7 +9,11 @@ public class DefaultDriverGenome implements IGenome {
     private static final long serialVersionUID = 6534186543165341653L;
     private DataRecorder mDataRecorder = null;
     private NeuralNetworkController mController = null;
-    
+
+    public DefaultDriverGenome(NeuralNetworkController controller) {
+        this.mController = controller;
+    }
+
     public DefaultDriverGenome() {
         // init NN
         try {

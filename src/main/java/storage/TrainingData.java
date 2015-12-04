@@ -42,9 +42,9 @@ public class TrainingData {
                 continue;
             }
             System.out.println("Processing file " + file.getName());
-            try {
-                Scanner scanner = new Scanner(file);
-                /* Parse and train line-by-line */
+            try (Scanner scanner = new Scanner(file)) {
+
+                /* Parse each line */
                 while (scanner.hasNextLine()) {
                     String[] entries = scanner.nextLine().split(",");
                     if (entries.length != 27) {
@@ -54,7 +54,6 @@ public class TrainingData {
                     inputVectors.add(parseValues(entries, inputIndices));
                     targetVectors.add(parseValues(entries, targetIndices));
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println(e.getMessage());
