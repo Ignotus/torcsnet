@@ -25,6 +25,8 @@ import java.util.Map;
 public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final long serialVersionUID = 654963126362653L;
 
+    private static final boolean EVOLVE_DRIVER = false;
+
     private int mEvolutionStep = 0;
     private MultiLayerPerceptron mPreTrainedNetwork;
 
@@ -38,40 +40,57 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
 
     public void run(boolean continue_from_checkpoint) {
         if(!continue_from_checkpoint){
-
-            System.out.println("Initializing evolver...");
-            SimpleNeatParameters params = new SimpleNeatParameters();
-            params.setFitnessFunction(new DriverFitnessFunction());
-            params.setPopulationSize(5);
-            params.setMaximumFitness(10);
-            params.setMaximumGenerations(10);
-            Evolver e = createEvolver(params);
-            params.setNeuralNetworkBuilder(new NeuralNetworkBuilder() {
-                @Override
-                public NeuralNetwork createNeuralNetwork(Organism organism) {
-                    return null;
-                }
-            });
-
-            try {
-                // Evolve the network
-                System.out.println("Starting evolution...");
-                Organism best = e.evolve();
-                // Get the neural network of the best individual
-                NeuralNetwork nn = params.getNeuralNetworkBuilder().createNeuralNetwork(best);
-                // Store evolved NN
-                nn.save(Configuration.NEUROPH_EVOLVED_FILE);
-
-            } catch (PersistenceException e1) {
-                e1.printStackTrace();
+            if (EVOLVE_DRIVER) {
+                runEvolution();
+            } else {
+               runNormalRace(Configuration.NEUROPH_TRAINED_FILE);
+               //runNormalRace(Configuration.NEUROPH_EVOLVED_FILE);
             }
         }
-
-        //
-        // create a checkpoint this allows you to continue this run later
-        DriversUtils.createCheckpoint(this);
-        // driversUtils.clearCheckpoint();
     }
+
+    private void runNormalRace(String nnFile) {
+
+        // start a race
+        Race race = new Race();
+        race.setTrack("road", "aalborg");
+        race.setTermination(Race.Termination.LAPS, 1);
+        race.setStage(Controller.Stage.RACE);
+
+        NeuralNetwork network = NeuralNetwork.load(nnFile);
+        NeuralNetworkController nn = new EvolvedController(network);
+        DefaultDriverGenome genome = new DefaultDriverGenome(nn);
+
+        DefaultDriver driver = new DefaultDriver();
+        driver.loadGenome(genome);
+        race.addCompetitor(driver);
+
+        race.runWithGUI();
+    }
+
+    private void runEvolution() {
+        System.out.println("Initializing evolver...");
+        SimpleNeatParameters params = new SimpleNeatParameters();
+        params.setFitnessFunction(new DriverFitnessFunction());
+        params.setPopulationSize(2);
+        //params.setMaximumFitness(10);
+        params.setMaximumGenerations(10);
+        Evolver e = createEvolver(params);
+
+        try {
+            // Evolve the network
+            System.out.println("Starting evolution...");
+            Organism best = e.evolve();
+            // Get the neural network of the best individual
+            NeuralNetwork nn = params.getNeuralNetworkBuilder().createNeuralNetwork(best);
+            // Store evolved NN
+            nn.save(Configuration.NEUROPH_EVOLVED_FILE);
+
+        } catch (PersistenceException e1) {
+            e1.printStackTrace();
+        }
+    }
+
 
     private Evolver createEvolver(NeatParameters params) {
         /* Setup initial network layout */

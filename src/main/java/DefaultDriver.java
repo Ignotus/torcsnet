@@ -93,7 +93,7 @@ public class DefaultDriver extends AbstractDriver {
 
         if (acceleration > braking) {
             // Temporary solution for safety
-            action.accelerate = acceleration / 2;
+            action.accelerate = acceleration;
             action.brake = 0;
         } else {
             action.brake = braking;

@@ -51,14 +51,19 @@ public class NeurophMLPTrainingTest {
 
     @Test
     public void trainAndStore() {
-        TrainingData data = TrainingData.readData(Configuration.CSV_DIRECTORY, INPUTS, OUTPUTS, false);
+        TrainingData data = TrainingData.readData(Configuration.CSV_DIRECTORY, INPUTS, OUTPUTS, true);
         if (data == null) {
             System.out.println("No data read!");
             return;
         }
 
         /* Normalize and train on the data */
-        Normalization norm = Normalization.createNormalization(data.input, data.target);
+        Normalization normData = Normalization.createNormalization(data.input, data.target);
+        System.out.println("Norm min target: " + normData.targetMin);
+        System.out.println("Norm max target: " + normData.targetMax);
+
+
+        Normalization norm = EvolvedController.createDefaultNormalization();
         norm.normalizeInput(data.input, 0, 1);
         norm.normalizeTarget(data.target, 0, 1);
 
@@ -70,10 +75,10 @@ public class NeurophMLPTrainingTest {
 
         // Create network
         MultiLayerPerceptron mlp = new MultiLayerPerceptron(TransferFunctionType.SIGMOID,
-                INPUTS.length, 25, OUTPUTS.length);
+                INPUTS.length, 20, OUTPUTS.length);
         BackPropagation backPropagation = new BackPropagation();
-        backPropagation.setLearningRate(0.05);
-        backPropagation.setMaxIterations(50);
+        backPropagation.setLearningRate(0.1);
+        backPropagation.setMaxIterations(TRAIN_ITERATIONS);
         mlp.setLearningRule(backPropagation);
 
         // Train

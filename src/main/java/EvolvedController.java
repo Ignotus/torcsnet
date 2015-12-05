@@ -48,7 +48,7 @@ public class EvolvedController implements NeuralNetworkController {
 
     @Override
     public double getBraking() {
-        return mPredictions.getEntry(2);
+        return 0;
     }
 
     private RealVector sensorsToVector(SensorModel sensors, Normalization norm) {
@@ -65,7 +65,7 @@ public class EvolvedController implements NeuralNetworkController {
         return vector;
     }
 
-    private Normalization createDefaultNormalization() {
+    public static Normalization createDefaultNormalization() {
 
         // Set data normalization based on expected range of values
         Normalization norm = new Normalization();
@@ -86,13 +86,13 @@ public class EvolvedController implements NeuralNetworkController {
         norm.targetMin = new ArrayRealVector(3);
         norm.targetMax = new ArrayRealVector(3);
         // acceleration
-        norm.targetMin.setEntry(0, 0);
+        norm.targetMin.setEntry(0, -1);
         norm.targetMax.setEntry(0, 1);
         // steering
         norm.targetMin.setEntry(1, -1);
         norm.targetMax.setEntry(1, 1);
         // braking
-        norm.targetMin.setEntry(2, 0);
+        norm.targetMin.setEntry(2, -1);
         norm.targetMax.setEntry(2, 1);
 
         return norm;
