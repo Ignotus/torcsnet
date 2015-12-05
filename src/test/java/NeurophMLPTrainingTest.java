@@ -76,6 +76,7 @@ public class NeurophMLPTrainingTest {
         // Create network
         MultiLayerPerceptron mlp = new MultiLayerPerceptron(TransferFunctionType.SIGMOID,
                 INPUTS.length, 20, OUTPUTS.length);
+        mlp.randomizeWeights();
         BackPropagation backPropagation = new BackPropagation();
         backPropagation.setLearningRate(0.1);
         backPropagation.setMaxIterations(TRAIN_ITERATIONS);

@@ -10,12 +10,14 @@ import org.neuroph.contrib.neat.gen.impl.SimpleNeatParameters;
 import org.neuroph.contrib.neat.gen.operations.FitnessFunction;
 import org.neuroph.contrib.neat.gen.operations.OrganismFitnessScore;
 import org.neuroph.contrib.neat.gen.persistence.PersistenceException;
+import org.neuroph.core.Layer;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import race.TorcsConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,17 +27,15 @@ import java.util.Map;
 public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final long serialVersionUID = 654963126362653L;
 
-    private static final boolean EVOLVE_DRIVER = false;
+    private static final boolean EVOLVE_DRIVER = true;
 
     private int mEvolutionStep = 0;
-    private MultiLayerPerceptron mPreTrainedNetwork;
 
     public Class<? extends Driver> getDriverClass(){
         return DefaultDriver.class;
     }
 
     public EvolutionaryDriverAlgorithm() {
-        mPreTrainedNetwork = (MultiLayerPerceptron)MultiLayerPerceptron.load(Configuration.NEUROPH_TRAINED_FILE);
     }
 
     public void run(boolean continue_from_checkpoint) {
@@ -81,6 +81,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
             // Evolve the network
             System.out.println("Starting evolution...");
             Organism best = e.evolve();
+
             // Get the neural network of the best individual
             NeuralNetwork nn = params.getNeuralNetworkBuilder().createNeuralNetwork(best);
             // Store evolved NN
@@ -102,6 +103,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         for (int i = 0; i < 3; i++) {
             outputs.add(new NeuronGene(NeuronType.OUTPUT, params));
         }
+
         return Evolver.createNew(params, inputs, outputs);
     }
 
@@ -178,8 +180,8 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
                 // Set initial neural network?
 
                 System.out.println("Setting initial network layer");
-                nn.removeLayerAt(1);
-                nn.addLayer(1, mPreTrainedNetwork.getLayerAt(1));
+                initializeNetwork(nn, Configuration.NEUROPH_TRAINED_FILE);
+
             }
             NeuralNetworkController networkController = new EvolvedController(nn);
             DefaultDriverGenome genome = new DefaultDriverGenome(networkController);
@@ -190,6 +192,19 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         }
 
         return race.runWithGUI();
+    }
+
+    private void initializeNetwork(NeuralNetwork nn, String filename) {
+        // Doesn't work?
+        NeuralNetwork preTrained = MultiLayerPerceptron.load(filename);
+        nn.reset();
+        nn.getLayers().clear();
+
+        Iterator<Layer> layers = preTrained.getLayersIterator();
+        while (layers.hasNext()) {
+            nn.addLayer(layers.next());
+        }
+
     }
 
 }
