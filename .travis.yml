@@ -4,5 +4,4 @@ jdk:
 scala:
   - 2.11.2
 script:
-  - sbt test
   - sbt assembly
