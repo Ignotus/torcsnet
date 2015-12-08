@@ -31,9 +31,9 @@ import java.io.*;
 public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final long serialVersionUID = 654963126362653L;
 
-    private static final int ITER_TRAINING_ERROR = 10000;
+    private static final int ITER_TRAINING_ERROR = 1000;
 
-    private static final boolean EVOLVE_DRIVER = false;
+    private static final boolean EVOLVE_DRIVER = true;
 
     private EvolutionaryAlgorithm mTrainingDataTrainer;
     private EvolutionaryAlgorithm mRaceTimingTrainer;
@@ -92,7 +92,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         }
     }
 
-    private void runEvolvedRace(String nnFile) throws IOException {
+    private void runEvolvedRace(String nnFile) {
         NEATPopulation population = loadNEAT(nnFile);
         mRaceTimingTrainer = NEATUtil.constructNEATTrainer(population, new DriverFitnessScore());
 

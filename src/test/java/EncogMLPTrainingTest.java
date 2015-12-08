@@ -16,7 +16,7 @@ import java.io.IOException;
  *
  */
 public class EncogMLPTrainingTest {
-    private static final int TRAIN_ITERATIONS = 1000;
+    private static final int TRAIN_ITERATIONS = 10000;
 
     // The values that we take as input for predictions
     public static final int[] INPUTS = new int[] {
