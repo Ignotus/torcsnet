@@ -33,7 +33,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
 
     private static final int ITER_TRAINING_ERROR = 1000;
 
-    private static final boolean EVOLVE_DRIVER = true;
+    private static final boolean EVOLVE_DRIVER = false;
 
     private EvolutionaryAlgorithm mTrainingDataTrainer;
     private EvolutionaryAlgorithm mRaceTimingTrainer;
@@ -206,6 +206,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         DefaultDriver driver = new DefaultDriver();
         driver.loadGenome(genome);
         race.addCompetitor(driver);
+        DriversUtils.createCheckpoint(this);
 
         return race.runWithGUI().get(0);
     }

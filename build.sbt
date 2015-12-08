@@ -4,11 +4,13 @@ name := "torcsnet"
 
 unmanagedJars in Compile += file("libs/CIContest-driver.jar")
 
-version := "0.1"
+version := "0.2"
 
 crossPaths := false
 
 autoScalaLibrary := false
+
+excludeFilter in unmanagedSources := "DefaultDriverAlgorithm.java"
 
 packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
@@ -25,6 +27,6 @@ libraryDependencies += "junit" % "junit" % "4.11" % "test"
 
 libraryDependencies += "org.knowm.xchart" % "xchart" % "2.6.0" exclude("de.erichseifert.vectorgraphics2d", "VectorGraphics2D") withSources()
 
-libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.3.1"
+libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.3.1" % "provided"
 
 libraryDependencies += "org.encog" % "encog-core" % "3.3.0"
