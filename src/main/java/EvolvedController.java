@@ -1,39 +1,33 @@
 import cicontest.torcs.client.SensorModel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
-import org.neuroph.core.NeuralNetwork;
-import org.neuroph.nnet.MultiLayerPerceptron;
+import org.encog.ml.MLRegression;
+import org.encog.ml.data.MLData;
+import org.encog.ml.data.basic.BasicMLData;
 import storage.Normalization;
 
-import java.util.Vector;
 
 /**
  * Created by sander on 03/12/15.
  */
 public class EvolvedController implements NeuralNetworkController {
-    private NeuralNetwork mNN;
+    private MLRegression mNN;
     private Normalization mNorm;
     private RealVector mPredictions;
 
-    public EvolvedController(NeuralNetwork network) {
+    public EvolvedController(MLRegression network) {
         this.mNN = network;
         this.mNorm = createDefaultNormalization();
         System.out.println("EvolvedController initialized");
     }
 
-    public EvolvedController(String neurophWeightsFile) {
-        this.mNN = MultiLayerPerceptron.load(neurophWeightsFile);
-        this.mNorm = createDefaultNormalization();
-    }
-
     @Override
     public void updatePredictions(SensorModel model) {
         RealVector vec = sensorsToVector(model, mNorm);
-        mNN.setInput(vec.toArray());
-        mNN.calculate();
-        mPredictions = vectorToRealVector(mNN.getOutput());
+        MLData prediction = mNN.compute(new BasicMLData(vec.toArray()));
+
+        mPredictions = new ArrayRealVector(prediction.getData());
         mNorm.denormalizeOutput(mPredictions, 0, 1);
-        System.out.println("Predictions: " + mPredictions);
     }
 
     @Override
@@ -52,7 +46,7 @@ public class EvolvedController implements NeuralNetworkController {
     }
 
     private RealVector sensorsToVector(SensorModel sensors, Normalization norm) {
-        RealVector vector = new ArrayRealVector(mNN.getInputNeurons().size());
+        RealVector vector = new ArrayRealVector(mNN.getInputCount());
         vector.setEntry(0, sensors.getSpeed());
         vector.setEntry(1, sensors.getAngleToTrackAxis());
 
@@ -97,13 +91,4 @@ public class EvolvedController implements NeuralNetworkController {
 
         return norm;
     }
-
-    private RealVector vectorToRealVector(Vector<Double> vec) {
-        RealVector v = new ArrayRealVector(vec.size());
-        for (int i = 0; i < vec.size(); i++) {
-            v.setEntry(i, vec.get(i));
-        }
-        return v;
-    }
-
 }

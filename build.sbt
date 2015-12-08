@@ -3,8 +3,6 @@ import sbt.Package.ManifestAttributes
 name := "torcsnet"
 
 unmanagedJars in Compile += file("libs/CIContest-driver.jar")
-unmanagedJars in Compile += file("libs/neuroph-2.3.jar")
-unmanagedJars in Compile += file("libs/neat-0.9.jar")
 
 version := "0.1"
 
@@ -28,3 +26,5 @@ libraryDependencies += "junit" % "junit" % "4.11" % "test"
 libraryDependencies += "org.knowm.xchart" % "xchart" % "2.6.0" exclude("de.erichseifert.vectorgraphics2d", "VectorGraphics2D") withSources()
 
 libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.3.1"
+
+libraryDependencies += "org.encog" % "encog-core" % "3.3.0"

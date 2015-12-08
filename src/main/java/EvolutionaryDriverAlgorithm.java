@@ -4,22 +4,26 @@ import cicontest.torcs.client.Controller;
 import cicontest.torcs.controller.Driver;
 import cicontest.torcs.race.Race;
 import cicontest.torcs.race.RaceResult;
-import cicontest.torcs.race.RaceResults;
-import org.neuroph.contrib.neat.gen.*;
-import org.neuroph.contrib.neat.gen.impl.SimpleNeatParameters;
-import org.neuroph.contrib.neat.gen.operations.FitnessFunction;
-import org.neuroph.contrib.neat.gen.operations.OrganismFitnessScore;
-import org.neuroph.contrib.neat.gen.persistence.PersistenceException;
-import org.neuroph.core.Layer;
-import org.neuroph.core.NeuralNetwork;
-import org.neuroph.nnet.MultiLayerPerceptron;
-import race.TorcsConfiguration;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.encog.ml.CalculateScore;
+import org.encog.ml.MLMethod;
+import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.basic.BasicMLDataSet;
+import org.encog.ml.ea.train.EvolutionaryAlgorithm;
+import org.encog.neural.neat.NEATNetwork;
+import org.encog.neural.neat.NEATPopulation;
+import org.encog.neural.neat.NEATUtil;
+import org.encog.neural.neat.PersistNEATPopulation;
+import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.networks.PersistBasicNetwork;
+import org.encog.neural.networks.training.TrainingSetScore;
+
+import race.TorcsConfiguration;
+import storage.DataRecorder;
+import storage.Normalization;
+import storage.TrainingData;
+
+import java.io.*;
 
 /**
  * Created by sander on 04/12/15.
@@ -27,9 +31,13 @@ import java.util.Map;
 public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final long serialVersionUID = 654963126362653L;
 
-    private static final boolean EVOLVE_DRIVER = true;
+    private static final int ITER_TRAINING_ERROR = 10000;
 
-    private int mEvolutionStep = 0;
+    private static final boolean EVOLVE_DRIVER = false;
+
+    private EvolutionaryAlgorithm mTrainingDataTrainer;
+    private EvolutionaryAlgorithm mRaceTimingTrainer;
+    private MLDataSet mFitnessData;
 
     public Class<? extends Driver> getDriverClass(){
         return DefaultDriver.class;
@@ -41,70 +49,165 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     public void run(boolean continue_from_checkpoint) {
         if(!continue_from_checkpoint){
             if (EVOLVE_DRIVER) {
-                runEvolution();
+                try {
+                    loadTrainingData();
+                    runEvolution();
+                    System.out.println("Evolution finished");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
-               runNormalRace(Configuration.NEUROPH_TRAINED_FILE);
-               //runNormalRace(Configuration.NEUROPH_EVOLVED_FILE);
+                // Choose evolved or normally trained driver
+                //runEvolvedRace(Configuration.ENCOG_EVOLVED_FILE);
+                runMLPRace(Configuration.ENCOG_TRAINED_FILE);
             }
         }
     }
 
-    private void runNormalRace(String nnFile) {
+    private void loadTrainingData() throws Exception {
+        TrainingData data = TrainingData.readData(Configuration.CSV_DIRECTORY, INPUTS, OUTPUTS, true);
+        if (data == null) {
+            throw new Exception("No data read");
+        }
+        /* Normalize and train on the data */
+        Normalization normData = Normalization.createNormalization(data.input, data.target);
+        System.out.println("Norm min target: " + normData.targetMin);
+        System.out.println("Norm max target: " + normData.targetMax);
+
+        Normalization norm = EvolvedController.createDefaultNormalization();
+        norm.normalizeInput(data.input, 0, 1);
+        norm.normalizeTarget(data.target, 0, 1);
+
+        mFitnessData = new BasicMLDataSet(data.input.getData(), data.target.getData());
+    }
+
+    private void runMLPRace(String mlpFile) {
+        PersistBasicNetwork persistence = new PersistBasicNetwork();
+        try {
+            FileInputStream fis = new FileInputStream(mlpFile);
+            BasicNetwork nn = (BasicNetwork)persistence.read(fis);
+            runRace(new EvolvedController(nn));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void runEvolvedRace(String nnFile) throws IOException {
+        NEATPopulation population = loadNEAT(nnFile);
+        mRaceTimingTrainer = NEATUtil.constructNEATTrainer(population, new DriverFitnessScore());
+
+        NEATNetwork network = (NEATNetwork) mRaceTimingTrainer.getCODEC().decode(population.getBestGenome());
+        NeuralNetworkController nn = new EvolvedController(network);
+        DefaultDriverGenome genome = new DefaultDriverGenome(nn);
+        DefaultDriver driver = new DefaultDriver();
+        driver.loadGenome(genome);
 
         // start a race
         Race race = new Race();
         race.setTrack("road", "aalborg");
         race.setTermination(Race.Termination.LAPS, 1);
         race.setStage(Controller.Stage.RACE);
-
-        NeuralNetwork network = NeuralNetwork.load(nnFile);
-        NeuralNetworkController nn = new EvolvedController(network);
-        DefaultDriverGenome genome = new DefaultDriverGenome(nn);
-
-        DefaultDriver driver = new DefaultDriver();
-        driver.loadGenome(genome);
         race.addCompetitor(driver);
 
         race.runWithGUI();
     }
 
-    private void runEvolution() {
-        System.out.println("Initializing evolver...");
-        SimpleNeatParameters params = new SimpleNeatParameters();
-        params.setFitnessFunction(new DriverFitnessFunction());
-        params.setPopulationSize(2);
-        //params.setMaximumFitness(10);
-        params.setMaximumGenerations(10);
-        Evolver e = createEvolver(params);
+    private void runEvolution() throws IOException {
+        System.out.println("Initializing evolution...");
 
+        NEATPopulation pop = loadNEAT(Configuration.ENCOG_EVOLVED_FILE);
+        if (pop == null) {
+            System.out.println("Creating new NEAT population");
+            //input count, output count, population size
+            pop = new NEATPopulation(INPUTS.length, OUTPUTS.length, 5);
+            pop.setInitialConnectionDensity(1.0);// not required, but speeds training
+            pop.reset();
+        } else {
+            System.out.println("NEAT population loaded from file");
+        }
+
+        mTrainingDataTrainer = NEATUtil.constructNEATTrainer(pop, new TrainingSetScore(mFitnessData));
+        mRaceTimingTrainer = NEATUtil.constructNEATTrainer(pop, new DriverFitnessScore());
+
+        // Evolve the network using training data
+        for (int i = 0; i < ITER_TRAINING_ERROR; i++) {
+            mTrainingDataTrainer.iteration();
+            System.out.println("Epoch #" + mTrainingDataTrainer.getIteration()
+                     + ", Error:" + mTrainingDataTrainer.getError()
+                     + ", Species:" + pop.getSpecies().size()
+                     + ", Pop: " + pop.getPopulationSize());
+        }
+        System.out.println("Training finished");
+        storeNEAT(pop);
+    }
+
+    private static NEATPopulation loadNEAT(String file) {
+        PersistNEATPopulation persistPop = new PersistNEATPopulation();
         try {
-            // Evolve the network
-            System.out.println("Starting evolution...");
-            Organism best = e.evolve();
+            FileInputStream inputStream = new FileInputStream(file);
+            NEATPopulation population = (NEATPopulation)persistPop.read(inputStream);
+            inputStream.close();
+            return population;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-            // Get the neural network of the best individual
-            NeuralNetwork nn = params.getNeuralNetworkBuilder().createNeuralNetwork(best);
-            // Store evolved NN
-            nn.save(Configuration.NEUROPH_EVOLVED_FILE);
-
-        } catch (PersistenceException e1) {
-            e1.printStackTrace();
+    private static void storeNEAT(NEATPopulation population) {
+        PersistNEATPopulation persistPop = new PersistNEATPopulation();
+        try {
+            System.out.println("Storing NEAT results in " + Configuration.ENCOG_EVOLVED_FILE);
+            FileOutputStream fos = new FileOutputStream(Configuration.ENCOG_EVOLVED_FILE);
+            persistPop.save(fos, population);
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    private class DriverFitnessScore implements CalculateScore {
 
-    private Evolver createEvolver(NeatParameters params) {
-        /* Setup initial network layout */
-        ArrayList<NeuronGene> inputs = new ArrayList<>(21);
-        ArrayList<NeuronGene> outputs = new ArrayList<>(3);
-        for (int i = 0; i < 21; i++) {
-            inputs.add(new NeuronGene(NeuronType.INPUT, params));
-        }
-        for (int i = 0; i < 3; i++) {
-            outputs.add(new NeuronGene(NeuronType.OUTPUT, params));
+        @Override
+        public double calculateScore(MLMethod mlMethod) {
+            NEATNetwork network = (NEATNetwork)mlMethod;
+            RaceResult result = runRace(new EvolvedController(network));
+            return computeFitness(result);
         }
 
-        return Evolver.createNew(params, inputs, outputs);
+        @Override
+        public boolean shouldMinimize() {
+            return false;
+        }
+
+        @Override
+        public boolean requireSingleThreaded() {
+            return false;
+        }
+    }
+
+    private static double computeFitness(RaceResult result) {
+        if (result.getLaps() == 0) {
+            return 0;
+        }
+        // todo incorporate crashes / damage
+        return result.getDistance();
+    }
+
+    private RaceResult runRace(EvolvedController controller) {
+        Race race = new Race();
+        race.setTrack("road", "aalborg");
+        race.setTermination(Race.Termination.LAPS, 1);
+        race.setStage(Controller.Stage.RACE);
+
+        // Set evolved neural network to racer
+        // Add this racer to race
+        DefaultDriverGenome genome = new DefaultDriverGenome(controller);
+        DefaultDriver driver = new DefaultDriver();
+        driver.loadGenome(genome);
+        race.addCompetitor(driver);
+
+        return race.runWithGUI().get(0);
     }
 
     public static void main(String[] args) {
@@ -138,73 +241,39 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         } else {
             algorithm.run();
         }
-
     }
 
-    private class DriverFitnessFunction implements FitnessFunction {
-        @Override
-        public void evaluate(List<OrganismFitnessScore> list) {
-            mEvolutionStep++;
+    // The values that we take as input for predictions
+    private static final int[] INPUTS = new int[] {
+            DataRecorder.SENSOR_SPEED,
+            DataRecorder.SENSORS_ANGLE_TO_TRACK_AXIS,
+            DataRecorder.SENSOR_TRACK_EDGE_1,
+            DataRecorder.SENSOR_TRACK_EDGE_2,
+            DataRecorder.SENSOR_TRACK_EDGE_3,
+            DataRecorder.SENSOR_TRACK_EDGE_4,
+            DataRecorder.SENSOR_TRACK_EDGE_5,
+            DataRecorder.SENSOR_TRACK_EDGE_6,
+            DataRecorder.SENSOR_TRACK_EDGE_7,
+            DataRecorder.SENSOR_TRACK_EDGE_8,
+            DataRecorder.SENSOR_TRACK_EDGE_9,
+            DataRecorder.SENSOR_TRACK_EDGE_10,
+            DataRecorder.SENSOR_TRACK_EDGE_11,
+            DataRecorder.SENSOR_TRACK_EDGE_12,
+            DataRecorder.SENSOR_TRACK_EDGE_13,
+            DataRecorder.SENSOR_TRACK_EDGE_14,
+            DataRecorder.SENSOR_TRACK_EDGE_15,
+            DataRecorder.SENSOR_TRACK_EDGE_16,
+            DataRecorder.SENSOR_TRACK_EDGE_17,
+            DataRecorder.SENSOR_TRACK_EDGE_18,
+            DataRecorder.SENSOR_TRACK_EDGE_19,
+    };
 
-            /* Evaluate performance by racing */
-            System.out.println("Evaluate: " + list.size() + " individuals");
-            RaceResults raceResults = runRaceWithPopulation(list);
-            for (Map.Entry<Driver, RaceResult> res : raceResults.entrySet()) {
-                DefaultDriver driver = (DefaultDriver)res.getKey();
-                OrganismFitnessScore ofs = list.get(driver.getIndex());
-                ofs.setFitness(computeFitness(res));
-            }
-        }
+    // The values that we want to predict
+    private static final int[] OUTPUTS = new int[] {
+            DataRecorder.ACTION_ACCELERATION,
+            DataRecorder.ACTION_STEERING,
+            DataRecorder.ACTION_BRAKING
+    };
 
-        private double computeFitness(Map.Entry<Driver, RaceResult> entry) {
-            if (entry.getValue().getLaps() == 0) {
-                return 0;
-            }
-            // todo incorporate crashes / damage
-            return entry.getValue().getDistance();
-        }
-    }
-
-    private RaceResults runRaceWithPopulation(List<OrganismFitnessScore> list) {
-        Race race = new Race();
-        race.setTrack("road", "aalborg");
-        race.setTermination(Race.Termination.LAPS, 1);
-        race.setStage(Controller.Stage.RACE);
-
-        for(int i = 0; i < list.size(); i++) {
-            // Set evolved neural network to racer
-            // Add this racer to race
-
-            NeuralNetwork nn = list.get(i).getNeuralNetwork();
-            if (mEvolutionStep == 1) {
-                // Set initial neural network?
-
-                System.out.println("Setting initial network layer");
-                initializeNetwork(nn, Configuration.NEUROPH_TRAINED_FILE);
-
-            }
-            NeuralNetworkController networkController = new EvolvedController(nn);
-            DefaultDriverGenome genome = new DefaultDriverGenome(networkController);
-            DefaultDriver driver = new DefaultDriver();
-            driver.setIndex(i);
-            driver.loadGenome(genome);
-            race.addCompetitor(driver);
-        }
-
-        return race.runWithGUI();
-    }
-
-    private void initializeNetwork(NeuralNetwork nn, String filename) {
-        // Doesn't work?
-        NeuralNetwork preTrained = MultiLayerPerceptron.load(filename);
-        nn.reset();
-        nn.getLayers().clear();
-
-        Iterator<Layer> layers = preTrained.getLayersIterator();
-        while (layers.hasNext()) {
-            nn.addLayer(layers.next());
-        }
-
-    }
 
 }

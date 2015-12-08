@@ -25,8 +25,9 @@ public class TrainingData {
     /* Reads all CSV files in the directory,
      * returns input and target matrices for the neural network*/
     public static TrainingData readData(String directory, int[] inputIndices, int[] targetIndices, boolean shuffle) {
+        System.out.println("readData");
         File fileDir = new File(directory);
-        System.out.println(fileDir);
+        System.out.println("FileDir: " + fileDir);
         File[] files = fileDir.listFiles();
         if (files == null) {
             System.out.println("No data files found in directory " + directory);

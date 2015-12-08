@@ -50,10 +50,9 @@ public class Configuration {
     public static final String WEIGHTS_FILE_BRAKING = Configuration.value("weights_braking_file",
             "/Users/sander/GitHub/torcsnet/src/main/resources/memory/weights_braking.dump");
 
-    public static final String NEUROPH_TRAINED_FILE = Configuration.value("neuroph_trained_file",
+    public static final String ENCOG_TRAINED_FILE = Configuration.value("neuroph_trained_file",
             "/Users/sander/GitHub/torcsnet/src/main/resources/memory/neuroph_trained_file.dump");
 
-    public static final String NEUROPH_EVOLVED_FILE = Configuration.value("neuroph_evolved_file",
+    public static final String ENCOG_EVOLVED_FILE = Configuration.value("neuroph_evolved_file",
             "/Users/sander/GitHub/torcsnet/src/main/resources/memory/neuroph_evolved_file.dump");
-
 }

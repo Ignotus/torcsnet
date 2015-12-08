@@ -14,6 +14,8 @@ public class DefaultDriver extends AbstractDriver {
     private NeuralNetworkController mController;
 
     private static final String DRIVER_NAME = "Caffeine";
+    private static final double MINIMUM_SPEED = 30;
+    private static final double SAFE_ACCEL_DISTANCE = 200;
 
     private DataRecorder mDataRecorder;
 
@@ -89,8 +91,6 @@ public class DefaultDriver extends AbstractDriver {
         double acceleration = mController.getAcceleration();
         double braking = mController.getBraking();
 
-        //double frontDistance = sensors.getTrackEdgeSensors()[9];
-
         if (acceleration > braking) {
             // Temporary solution for safety
             action.accelerate = acceleration;
@@ -98,6 +98,18 @@ public class DefaultDriver extends AbstractDriver {
         } else {
             action.brake = braking;
             action.accelerate = 0;
+        }
+
+        /* Apply basic speed heuristics
+        *  - Prevent car from standing still if driving upwards on a hill
+        *  - Use maximum accelerating when possible
+        * */
+
+        double speed = sensors.getSpeed();
+        if (sensors.getTrackEdgeSensors()[9] > SAFE_ACCEL_DISTANCE) {
+            action.accelerate = 1.0;
+        } else if (speed < MINIMUM_SPEED) {
+            action.accelerate = 1.0;
         }
 
         action.steering = mController.getSteering();
