@@ -7,9 +7,9 @@ import cicontest.torcs.race.RaceResult;
 
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
-import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.ea.train.EvolutionaryAlgorithm;
+import org.encog.ml.ea.train.basic.TrainEA;
 import org.encog.neural.neat.NEATNetwork;
 import org.encog.neural.neat.NEATPopulation;
 import org.encog.neural.neat.NEATUtil;
@@ -30,14 +30,7 @@ import java.io.*;
  */
 public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final long serialVersionUID = 654963126362653L;
-
-    private static final int ITER_TRAINING_ERROR = 1000;
-
     private static final boolean EVOLVE_DRIVER = false;
-
-    private EvolutionaryAlgorithm mTrainingDataTrainer;
-    private EvolutionaryAlgorithm mRaceTimingTrainer;
-    private MLDataSet mFitnessData;
 
     public Class<? extends Driver> getDriverClass(){
         return DefaultDriver.class;
@@ -50,8 +43,10 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         if(!continue_from_checkpoint){
             if (EVOLVE_DRIVER) {
                 try {
-                    loadTrainingData();
-                    runEvolution();
+                    //BasicMLDataSet data = loadTrainingData();
+                    //runEvolution(data, 1000);
+
+                    runEvolution(10);
                     System.out.println("Evolution finished");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -64,7 +59,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         }
     }
 
-    private void loadTrainingData() throws Exception {
+    private BasicMLDataSet loadTrainingData() throws Exception {
         TrainingData data = TrainingData.readData(Configuration.CSV_DIRECTORY, INPUTS, OUTPUTS, true);
         if (data == null) {
             throw new Exception("No data read");
@@ -78,7 +73,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         norm.normalizeInput(data.input, 0, 1);
         norm.normalizeTarget(data.target, 0, 1);
 
-        mFitnessData = new BasicMLDataSet(data.input.getData(), data.target.getData());
+        return new BasicMLDataSet(data.input.getData(), data.target.getData());
     }
 
     private void runMLPRace(String mlpFile) {
@@ -94,9 +89,9 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
 
     private void runEvolvedRace(String nnFile) {
         NEATPopulation population = loadNEAT(nnFile);
-        mRaceTimingTrainer = NEATUtil.constructNEATTrainer(population, new DriverFitnessScore());
+        TrainEA trainer = NEATUtil.constructNEATTrainer(population, new DriverFitnessScore());
 
-        NEATNetwork network = (NEATNetwork) mRaceTimingTrainer.getCODEC().decode(population.getBestGenome());
+        NEATNetwork network = (NEATNetwork) trainer.getCODEC().decode(population.getBestGenome());
         NeuralNetworkController nn = new EvolvedController(network);
         DefaultDriverGenome genome = new DefaultDriverGenome(nn);
         DefaultDriver driver = new DefaultDriver();
@@ -112,7 +107,11 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         race.runWithGUI();
     }
 
-    private void runEvolution() throws IOException {
+    private void runEvolution(final int iterations) throws IOException {
+        runEvolution(null, iterations);
+    }
+
+    private void runEvolution(BasicMLDataSet trainingData, final int iterations) throws IOException {
         System.out.println("Initializing evolution...");
 
         NEATPopulation pop = loadNEAT(Configuration.ENCOG_EVOLVED_FILE);
@@ -126,14 +125,20 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
             System.out.println("NEAT population loaded from file");
         }
 
-        mTrainingDataTrainer = NEATUtil.constructNEATTrainer(pop, new TrainingSetScore(mFitnessData));
-        mRaceTimingTrainer = NEATUtil.constructNEATTrainer(pop, new DriverFitnessScore());
+        EvolutionaryAlgorithm trainer;
+        if (trainingData != null) {
+            // Just use training data
+            trainer = NEATUtil.constructNEATTrainer(pop, new TrainingSetScore(trainingData));
+        } else {
+            // Use racing performance
+            trainer = NEATUtil.constructNEATTrainer(pop, new DriverFitnessScore());
+        }
 
-        // Evolve the network using training data
-        for (int i = 0; i < ITER_TRAINING_ERROR; i++) {
-            mTrainingDataTrainer.iteration();
-            System.out.println("Epoch #" + mTrainingDataTrainer.getIteration()
-                     + ", Error:" + mTrainingDataTrainer.getError()
+        // Evolve the network
+        for (int i = 0; i < iterations; i++) {
+            trainer.iteration();
+            System.out.println("Epoch #" + trainer.getIteration()
+                     + ", Error:" + trainer.getError()
                      + ", Species:" + pop.getSpecies().size()
                      + ", Pop: " + pop.getPopulationSize());
         }
@@ -206,10 +211,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         DefaultDriver driver = new DefaultDriver();
         driver.loadGenome(genome);
         race.addCompetitor(driver);
-        System.out.println("Storing genome");
-        DriversUtils.storeGenome(genome);
-        DriversUtils.createCheckpoint(this);
-
+        System.out.println("Starting race...");
         return race.runWithGUI().get(0);
     }
 
