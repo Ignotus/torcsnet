@@ -206,6 +206,8 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
         DefaultDriver driver = new DefaultDriver();
         driver.loadGenome(genome);
         race.addCompetitor(driver);
+        System.out.println("Storing genome");
+        DriversUtils.storeGenome(genome);
         DriversUtils.createCheckpoint(this);
 
         return race.runWithGUI().get(0);
