@@ -10,7 +10,7 @@ crossPaths := false
 
 autoScalaLibrary := false
 
-excludeFilter in unmanagedSources := "DefaultDriverAlgorithm.java"
+excludeFilter in unmanagedSources := "EvolutionaryDriverAlgorithm.java"
 
 packageOptions := Seq(ManifestAttributes(
   ("Driver", "DefaultDriver")))
