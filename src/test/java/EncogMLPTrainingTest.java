@@ -47,6 +47,7 @@ public class EncogMLPTrainingTest {
     public static final int[] OUTPUTS = new int[] {
             DataRecorder.ACTION_ACCELERATION,
             DataRecorder.ACTION_STEERING,
+            DataRecorder.ACTION_BRAKING
     };
 
     @Test
@@ -59,7 +60,9 @@ public class EncogMLPTrainingTest {
         // Train
         System.out.println("Training network...");
         Train train = new ResilientPropagation(network, dataSet);
-        train.iteration(TRAIN_ITERATIONS);
+        for (int i = 0; i < TRAIN_ITERATIONS; i++) {
+            train.iteration();
+        }
         System.out.println("Training finished, error: " + train.getError());
 
         // Save to file
@@ -82,7 +85,7 @@ public class EncogMLPTrainingTest {
     private BasicNetwork getNetwork() {
         BasicNetwork network = new BasicNetwork();
         network.addLayer(new BasicLayer(new ActivationSigmoid(), true, INPUTS.length));
-        network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
+        network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 25));
         network.addLayer(new BasicLayer(new ActivationSigmoid(), true, OUTPUTS.length));
         network.getStructure().finalizeStructure();
         network.reset();
