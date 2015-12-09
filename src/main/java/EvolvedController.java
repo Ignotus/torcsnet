@@ -71,23 +71,24 @@ public class EvolvedController implements NeuralNetworkController {
         // track angle
         norm.inputMin.setEntry(1, -Math.PI);
         norm.inputMax.setEntry(1, Math.PI);
+
         // distance sensors
         for (int i = 0; i < 19; i++) {
             norm.inputMin.setEntry(i + 2, 0);
             norm.inputMax.setEntry(i + 2, 200);
         }
 
-        norm.targetMin = new ArrayRealVector(3);
-        norm.targetMax = new ArrayRealVector(3);
+        norm.targetMin = new ArrayRealVector(2);
+        norm.targetMax = new ArrayRealVector(2);
         // acceleration
         norm.targetMin.setEntry(0, -1);
         norm.targetMax.setEntry(0, 1);
         // steering
         norm.targetMin.setEntry(1, -1);
         norm.targetMax.setEntry(1, 1);
-        // braking
-        norm.targetMin.setEntry(2, -1);
-        norm.targetMax.setEntry(2, 1);
+//        // braking
+//        norm.targetMin.setEntry(2, -1);
+//        norm.targetMax.setEntry(2, 1);
 
         return norm;
     }

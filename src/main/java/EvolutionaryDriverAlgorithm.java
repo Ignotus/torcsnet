@@ -252,6 +252,7 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final int[] INPUTS = new int[] {
             DataRecorder.SENSOR_SPEED,
             DataRecorder.SENSORS_ANGLE_TO_TRACK_AXIS,
+            DataRecorder.SENSOR_TRACK_POSITION,
             DataRecorder.SENSOR_TRACK_EDGE_1,
             DataRecorder.SENSOR_TRACK_EDGE_2,
             DataRecorder.SENSOR_TRACK_EDGE_3,
@@ -277,7 +278,6 @@ public class EvolutionaryDriverAlgorithm extends AbstractAlgorithm {
     private static final int[] OUTPUTS = new int[] {
             DataRecorder.ACTION_ACCELERATION,
             DataRecorder.ACTION_STEERING,
-            DataRecorder.ACTION_BRAKING
     };
 
 

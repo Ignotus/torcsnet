@@ -1,4 +1,5 @@
 import cicontest.algorithm.abstracts.AbstractDriver;
+import cicontest.algorithm.abstracts.DriversUtils;
 import cicontest.torcs.client.Action;
 import cicontest.torcs.client.SensorModel;
 import cicontest.torcs.controller.extras.ABS;
@@ -9,13 +10,12 @@ import cicontest.torcs.genome.IGenome;
 import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
-    private int mIndex;
-
     private NeuralNetworkController mController;
 
     private static final String DRIVER_NAME = "Caffeine";
-    private static final double MINIMUM_SPEED = 30;
-    private static final double SAFE_ACCEL_DISTANCE = 200;
+    private static final double MINIMUM_SPEED = 35;
+    private static final double SAFE_ACCEL_DISTANCE = 180;
+    private static final double DANGER_SPEED = 70;
 
     private DataRecorder mDataRecorder;
 
@@ -26,7 +26,6 @@ public class DefaultDriver extends AbstractDriver {
         enableExtras(new ABS());
     }
 
-
     public void loadGenome(IGenome genome) {
         //if (genome instanceof DefaultDriverGenome) {
             DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
@@ -35,14 +34,6 @@ public class DefaultDriver extends AbstractDriver {
         //} else {
         //    System.err.println("Invalid Genome assigned");
         //}
-    }
-
-    public int getIndex() {
-        return mIndex;
-    }
-
-    public void setIndex(int i) {
-        this.mIndex = i;
     }
 
     public String getDriverName() {
@@ -100,19 +91,38 @@ public class DefaultDriver extends AbstractDriver {
             action.accelerate = 0;
         }
 
+        if (sensors.getSpeed() < DANGER_SPEED) {
+            action.brake = 0;
+        }
+
         /* Apply basic speed heuristics
         *  - Prevent car from standing still if driving upwards on a hill
         *  - Use maximum accelerating when possible
         * */
 
         double speed = sensors.getSpeed();
-        if (sensors.getTrackEdgeSensors()[9] > SAFE_ACCEL_DISTANCE) {
+
+        double[] edgeSensors = sensors.getTrackEdgeSensors();
+        double frontSensor = Math.max(Math.max(edgeSensors[8], edgeSensors[10]), edgeSensors[9]);
+
+        if (frontSensor > SAFE_ACCEL_DISTANCE) {
             action.accelerate = 1.0;
+        } else if (frontSensor > (SAFE_ACCEL_DISTANCE * 0.8)) {
+            action.accelerate = Math.max(action.accelerate, 0.5);
+        } else if (frontSensor > (SAFE_ACCEL_DISTANCE * 0.5) && sensors.getSpeed() < DANGER_SPEED) {
+            action.accelerate = Math.max(action.accelerate, 0.5);
         } else if (speed < MINIMUM_SPEED) {
             action.accelerate = 1.0;
         }
 
+        if (action.accelerate > 0) {
+            action.accelerate *= 1.2;
+        }
+
         action.steering = mController.getSteering();
+
+        System.out.println("Track pos:" + sensors.getTrackPosition());
+        action.limitValues();
     }
 
     @Override
