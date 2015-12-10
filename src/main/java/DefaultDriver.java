@@ -9,13 +9,22 @@ import cicontest.torcs.genome.IGenome;
 import storage.DataRecorder;
 
 public class DefaultDriver extends AbstractDriver {
-    private int mIndex;
-
     private NeuralNetworkController mController;
 
     private static final String DRIVER_NAME = "Caffeine";
-    private static final double MINIMUM_SPEED = 30;
-    private static final double SAFE_ACCEL_DISTANCE = 200;
+    private static final double SAFE_DISTANCE = 120;
+
+    private static final double BRAKE_DISTANCE_MAX = 150;
+    private static final double BRAKE_DISTANCE_MEDIUM = 60;
+    private static final double BRAKE_DISTANCE_MIN = 30;
+
+    private static final double HIGH_SPEED = 140;
+    private static final double MEDIUM_SPEED = 100;
+    private static final double SAFE_SPEED = 80;
+    private static final double MINIMUM_SPEED = 50;
+
+    private static final double ACCEL_FULL = 1.0;
+    private static final double ACCEL_LOW = 0.5;
 
     private DataRecorder mDataRecorder;
 
@@ -29,20 +38,12 @@ public class DefaultDriver extends AbstractDriver {
 
     public void loadGenome(IGenome genome) {
         //if (genome instanceof DefaultDriverGenome) {
-            DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
-            mController = myGenome.getController();
-            mDataRecorder = myGenome.getDataRecorder();
+        DefaultDriverGenome myGenome = (DefaultDriverGenome) genome;
+        mController = myGenome.getController();
+        mDataRecorder = myGenome.getDataRecorder();
         //} else {
         //    System.err.println("Invalid Genome assigned");
         //}
-    }
-
-    public int getIndex() {
-        return mIndex;
-    }
-
-    public void setIndex(int i) {
-        this.mIndex = i;
     }
 
     public String getDriverName() {
@@ -88,31 +89,46 @@ public class DefaultDriver extends AbstractDriver {
 
     private void controlImpl(Action action, SensorModel sensors) {
         mController.updatePredictions(sensors);
-        double acceleration = mController.getAcceleration();
-        double braking = mController.getBraking();
-
-        if (acceleration > braking) {
-            // Temporary solution for safety
-            action.accelerate = acceleration;
-            action.brake = 0;
-        } else {
-            action.brake = braking;
-            action.accelerate = 0;
-        }
+        action.accelerate =  mController.getAcceleration();
 
         /* Apply basic speed heuristics
         *  - Prevent car from standing still if driving upwards on a hill
-        *  - Use maximum accelerating when possible
+        *  - Use maximum acceleration when possible
         * */
+        final double speed = sensors.getSpeed();
+        final double[] edgeSensors = sensors.getTrackEdgeSensors();
+        final double frontSensor = Math.max(Math.max(edgeSensors[8], edgeSensors[10]), edgeSensors[9]);
 
-        double speed = sensors.getSpeed();
-        if (sensors.getTrackEdgeSensors()[9] > SAFE_ACCEL_DISTANCE) {
-            action.accelerate = 1.0;
+        /* Aggressive acceleration policy */
+        if (speed < SAFE_SPEED && action.accelerate > 0) {
+            action.accelerate *= 1.5;
+        }
+        if (frontSensor > SAFE_DISTANCE) {
+            action.accelerate = ACCEL_FULL;
+        } else if (speed < SAFE_SPEED && frontSensor > 0.25 * SAFE_DISTANCE) {
+            action.accelerate = Math.max(ACCEL_LOW, action.accelerate);
         } else if (speed < MINIMUM_SPEED) {
-            action.accelerate = 1.0;
+            action.accelerate = ACCEL_FULL;
+        }
+
+        /* Braking policy */
+        if (speed > HIGH_SPEED && frontSensor < BRAKE_DISTANCE_MAX) {
+            action.accelerate = 0;
+            action.brake = 0.8;
+        }
+
+        if (speed > MEDIUM_SPEED && frontSensor < BRAKE_DISTANCE_MEDIUM) {
+            action.accelerate = 0;
+            action.brake = 0.8;
+        }
+
+        if (speed > SAFE_SPEED && frontSensor < BRAKE_DISTANCE_MIN) {
+            action.accelerate = 0;
+            action.brake = 1.0;
         }
 
         action.steering = mController.getSteering();
+        action.limitValues();
     }
 
     @Override
