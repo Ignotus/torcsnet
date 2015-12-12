@@ -1,6 +1,8 @@
 # torcsnet
 
-[![Build Status](https://magnum.travis-ci.com/Ignotus/torcsnet.svg?token=wwJeqCDpgp3zQEw8i5Wy&branch=master)](https://magnum.travis-ci.com/Ignotus/torcsnet)
+[![Build Status](https://travis-ci.org/Ignotus/torcsnet.svg)](https://travis-ci.org/Ignotus/torcsnet)
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
+
 
 Torcs Controller's AI
 
