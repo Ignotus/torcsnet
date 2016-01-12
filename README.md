@@ -1,8 +1,8 @@
 # torcsnet
 
 [![Build Status](https://travis-ci.org/Ignotus/torcsnet.svg)](https://travis-ci.org/Ignotus/torcsnet)
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-
+[![License](http://img.shields.io/:license-mit-blue.svg)](LICENSE)
+[![GitHub version](https://badge.fury.io/gh/Ignotus%2Ftorcsnet.svg)](https://badge.fury.io/gh/Ignotus%2Ftorcsnet)
 
 Torcs Controller's AI
 
