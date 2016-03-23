@@ -34,3 +34,12 @@ sbt assembly
 sbt gen-idea
 ```
 
+## Copyright
+
+Copyright (c) 2015 Minh Ngo
+
+Copyright (c) 2015 Bryan Eikema
+
+Copyright (c) 2015 Sander Lijbrink
+
+This project is distributed under the [MIT license](LICENSE). It's a part of the Computational Intelligence course taught at the University of Amsterdam taught by lecturers from the Vrije Universiteit Amsterdam. Please follow the [UvA regulations governing Fraud and Plagiarism](http://student.uva.nl/en/az/content/plagiarism-and-fraud/plagiarism-and-fraud.html) in the case if you are a student.
